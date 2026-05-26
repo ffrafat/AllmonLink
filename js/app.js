@@ -257,6 +257,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderNodeCard = (nodeId, data, ptt) => {
     let card = document.getElementById(`card-${nodeId}`);
     
+    // Preserve the current quick input value if the card already exists
+    let preservedInputValue = '';
+    if (card) {
+      const existingInput = card.querySelector('.quick-node-input');
+      if (existingInput) {
+        preservedInputValue = existingInput.value;
+      }
+    }
+    
     if (!card) {
       card = document.createElement('div');
       card.id = `card-${nodeId}`;
@@ -337,8 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="card-quick-control">
         <input type="number" class="quick-node-input" placeholder="Quick Link Node #" pattern="[0-9]*" inputmode="numeric">
         <div class="quick-control-actions">
-          <button class="btn btn-quick-connect">Connect</button>
-          <button class="btn btn-quick-disconnect">Disconnect</button>
+          <button type="button" class="btn btn-quick-connect">Connect</button>
+          <button type="button" class="btn btn-quick-disconnect">Disconnect</button>
         </div>
       </div>
     ` : '';
@@ -371,6 +380,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       ${quickControlHTML}
     `;
+
+    // Restore preserved input value if applicable
+    if (state.isAuthenticated && preservedInputValue) {
+      const quickInput = card.querySelector('.quick-node-input');
+      if (quickInput) {
+        quickInput.value = preservedInputValue;
+      }
+    }
 
     // Bind dynamic control triggers on card header settings buttons
     const ctrlBtn = card.querySelector('.btn-icon-circle');
@@ -488,15 +505,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Executes quick disconnect command when clicking inline unlink button
   const executeDisconnectCommand = (nodeId, targetNode) => {
     showToast(`Disconnecting Node ${targetNode}...`, 'info');
-    // Allmon3 cmd parameters: rpt cmd <node> ilink 1 <target>
-    const cmdStr = `rpt cmd ${nodeId} ilink 1 ${targetNode}`;
     
-    AllmonLinkAPI.executeCommand(nodeId, cmdStr).then(res => {
-      if (res.success) {
+    const cmdStr1 = `rpt cmd ${nodeId} ilink 1 ${targetNode}`;
+    const cmdStr11 = `rpt cmd ${nodeId} ilink 11 ${targetNode}`;
+    
+    Promise.all([
+      AllmonLinkAPI.executeCommand(nodeId, cmdStr1),
+      AllmonLinkAPI.executeCommand(nodeId, cmdStr11)
+    ]).then(([res1, res11]) => {
+      if (res1.success || res11.success) {
         showToast(`Node ${targetNode} disconnected successfully.`, 'success');
       } else {
-        showToast(res.message || 'Disconnect request failed.', 'error');
+        showToast(res1.message || res11.message || 'Disconnect request failed.', 'error');
       }
+    }).catch(err => {
+      showToast(err.message || 'Disconnect request failed.', 'error');
     });
   };
 
