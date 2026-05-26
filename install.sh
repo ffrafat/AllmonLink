@@ -9,9 +9,9 @@ set -e
 
 # Configuration
 INSTALL_DIR="/usr/share/allmonlink"
-GITHUB_USER="yourusername"     # Replace with your GitHub username
+GITHUB_USER="ffrafat"          # Replace with your GitHub username
 GITHUB_REPO="AllmonLink"       # Replace with your repository name
-BRANCH="develop"               # Target branch for download
+BRANCH="main"                  # Target branch for download
 
 # Terminal colors
 RED='\033[0;31m'
