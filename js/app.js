@@ -333,6 +333,16 @@ document.addEventListener('DOMContentLoaded', () => {
       </button>
     `;
 
+    const quickControlHTML = state.isAuthenticated ? `
+      <div class="card-quick-control">
+        <input type="number" class="quick-node-input" placeholder="Quick Link Node #" pattern="[0-9]*" inputmode="numeric">
+        <div class="quick-control-actions">
+          <button class="btn btn-quick-connect">Connect</button>
+          <button class="btn btn-quick-disconnect">Disconnect</button>
+        </div>
+      </div>
+    ` : '';
+
     card.innerHTML = `
       <div class="node-card-header">
         <div class="node-title-area">
@@ -358,6 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
           ${connectionsHTML}
         </div>
       </div>
+
+      ${quickControlHTML}
     `;
 
     // Bind dynamic control triggers on card header settings buttons
@@ -380,9 +392,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const targetNodeId = row.dataset.nodeShortcut;
         if (state.isAuthenticated) {
-          el.linkTargetNode.value = targetNodeId;
-          openCommandConsole(nodeId);
-          showToast(`Target Node ${targetNodeId} selected`, 'info');
+          const quickInput = card.querySelector('.quick-node-input');
+          if (quickInput) {
+            quickInput.value = targetNodeId;
+            quickInput.focus();
+            showToast(`Node ${targetNodeId} selected for quick control`, 'info');
+          } else {
+            el.linkTargetNode.value = targetNodeId;
+            openCommandConsole(nodeId);
+            showToast(`Target Node ${targetNodeId} selected`, 'info');
+          }
         } else {
           // Pre-populate if they login later
           el.linkTargetNode.value = targetNodeId;
@@ -399,6 +418,43 @@ document.addEventListener('DOMContentLoaded', () => {
         executeDisconnectCommand(nodeId, unlinkTarget);
       });
     });
+
+    // Bind card-level quick connect/disconnect operations
+    if (state.isAuthenticated) {
+      const quickInput = card.querySelector('.quick-node-input');
+      const qConnectBtn = card.querySelector('.btn-quick-connect');
+      const qDisconnectBtn = card.querySelector('.btn-quick-disconnect');
+
+      if (qConnectBtn && qDisconnectBtn && quickInput) {
+        qConnectBtn.addEventListener('click', () => {
+          const targetVal = quickInput.value.trim();
+          if (!targetVal) {
+            showToast('Please enter a target node number.', 'error');
+            return;
+          }
+          showToast(`Connecting Node ${targetVal}...`, 'info');
+          const cmdStr = `rpt cmd ${nodeId} ilink 3 ${targetVal}`;
+          AllmonLinkAPI.executeCommand(nodeId, cmdStr).then(res => {
+            if (res.success) {
+              showToast(`Node ${targetVal} connection request sent.`, 'success');
+              quickInput.value = '';
+            } else {
+              showToast(res.message || 'Connection request failed.', 'error');
+            }
+          });
+        });
+
+        qDisconnectBtn.addEventListener('click', () => {
+          const targetVal = quickInput.value.trim();
+          if (!targetVal) {
+            showToast('Please enter a target node number.', 'error');
+            return;
+          }
+          executeDisconnectCommand(nodeId, targetVal);
+          quickInput.value = '';
+        });
+      }
+    }
   };
 
   // Render a node card in an error/disconnect state
