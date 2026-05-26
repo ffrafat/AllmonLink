@@ -161,9 +161,63 @@ EOF
     systemctl restart apache2
 fi
 
-if [ "$NGINX_RUNNING" = false ] && [ "$APACHE_RUNNING" = false ]; then
-    echo -e "${YELLOW}Warning: No active Nginx or Apache web server detected. Please ensure your web server points /allmonlink to ${INSTALL_DIR}${NC}"
+# 6. Create global command shortcuts for updates/uninstall
+echo -e "${BLUE}[*] Creating terminal shortcuts (allmonlink-update / allmonlink-uninstall)...${NC}"
+
+# Update command shortcut
+cat <<'EOF' > /usr/local/bin/allmonlink-update
+#!/usr/bin/env bash
+if [ "$EUID" -ne 0 ]; then
+    echo "Error: Please run as root (sudo allmonlink-update)"
+    exit 1
 fi
+echo "Updating AllmonLink..."
+curl -sSL https://raw.githubusercontent.com/ffrafat/AllmonLink/main/install.sh | bash
+EOF
+chmod +x /usr/local/bin/allmonlink-update
+
+# Uninstall command shortcut
+cat <<'EOF' > /usr/local/bin/allmonlink-uninstall
+#!/usr/bin/env bash
+if [ "$EUID" -ne 0 ]; then
+    echo "Error: Please run as root (sudo allmonlink-uninstall)"
+    exit 1
+fi
+
+read -p "Are you sure you want to completely uninstall AllmonLink? [y/N] " confirm
+if [[ ! $confirm =~ ^[Yy]$ ]]; then
+    echo "Uninstall cancelled."
+    exit 0
+fi
+
+echo "Uninstalling AllmonLink..."
+
+# Remove files
+rm -rf /usr/share/allmonlink
+
+# Remove Apache configuration
+if [ -f "/etc/apache2/conf-available/allmonlink.conf" ]; then
+    echo "Removing Apache configuration..."
+    a2disconf allmonlink &>/dev/null || true
+    rm -f /etc/apache2/conf-available/allmonlink.conf
+    systemctl restart apache2 2>/dev/null || true
+fi
+
+# Remove Nginx configuration
+DEFAULT_SITE_FILE="/etc/nginx/sites-available/default"
+if [ -f "${DEFAULT_SITE_FILE}" ] && grep -q "location /allmonlink/" "${DEFAULT_SITE_FILE}"; then
+    echo "Removing Nginx configuration..."
+    sed -i '/location \/allmonlink\//,/}/d' "${DEFAULT_SITE_FILE}"
+    systemctl restart nginx 2>/dev/null || true
+fi
+
+# Remove shortcuts
+rm -f /usr/local/bin/allmonlink-update
+rm -f /usr/local/bin/allmonlink-uninstall
+
+echo "AllmonLink has been successfully uninstalled."
+EOF
+chmod +x /usr/local/bin/allmonlink-uninstall
 
 # Get IP address of the Pi
 IP_ADDR=$(hostname -I | awk '{print $1}')
