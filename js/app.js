@@ -4,6 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // --- APP VERSION ---
+  const APP_VERSION = '1.0.0';
+
   // --- STATE ---
   const state = {
     isAuthenticated: false,
@@ -96,6 +99,73 @@ document.addEventListener('DOMContentLoaded', () => {
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 350);
     }, 3500);
+  };
+
+  // Check online for updated version
+  const checkForUpdates = () => {
+    if (!navigator.onLine) return;
+    
+    // Check after a 3s delay to let the initial load complete
+    setTimeout(() => {
+      fetch('https://raw.githubusercontent.com/ffrafat/AllmonLink/main/version.json')
+        .then(res => {
+          if (!res.ok) throw new Error('Network error fetching version');
+          return res.json();
+        })
+        .then(data => {
+          if (data && data.version && data.version !== APP_VERSION) {
+            showUpdateNotification(data.version);
+          }
+        })
+        .catch(err => console.log('[Updates] Update check skipped:', err.message));
+    }, 3000);
+  };
+
+  // Show a clickable notification for updates
+  const showUpdateNotification = (newVersion) => {
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-info';
+    toast.style.cursor = 'pointer';
+    toast.style.pointerEvents = 'auto';
+    toast.innerHTML = `
+      <svg class="icon" style="width:18px;height:18px;stroke:currentColor;fill:none;"><use xlink:href="#icon-alert"></use></svg>
+      <span style="flex:1;">Update available: v${newVersion}! Tap for details.</span>
+    `;
+    
+    toast.addEventListener('click', () => {
+      openUpdateModal(newVersion);
+      toast.remove();
+    });
+    
+    el.toastContainer.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 50);
+  };
+
+  // Create a dynamic overlay modal for update details
+  const openUpdateModal = (newVersion) => {
+    const modal = document.createElement('div');
+    modal.className = 'modal-container active';
+    modal.innerHTML = `
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Update Available (v${newVersion})</h3>
+          <button class="close-btn" id="update-close-btn">&times;</button>
+        </div>
+        <div class="modal-body" style="gap:12px;">
+          <p style="font-size:0.9rem;color:var(--text-secondary);">A new version of AllmonLink is available. To update your Pi, SSH into it and run this one-line command:</p>
+          <div style="background-color:#040506;border:1px solid var(--border-subtle);border-radius:8px;padding:12px;font-family:monospace;font-size:0.8rem;color:#17c964;word-break:break-all;user-select:all;margin:8px 0;">
+            curl -sSL https://raw.githubusercontent.com/ffrafat/AllmonLink/main/install.sh | sudo bash
+          </div>
+          <button class="btn btn-secondary btn-block" id="update-ok-btn">OK</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const closeModal = () => modal.remove();
+    modal.querySelector('#update-close-btn').addEventListener('click', closeModal);
+    modal.querySelector('#update-ok-btn').addEventListener('click', closeModal);
   };
 
   // --- VIEW RENDERERS ---
@@ -599,6 +669,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- INITIALIZATION PIPELINE ---
 
   const initApp = () => {
+    // Check for updates against remote GitHub repo
+    checkForUpdates();
+
     // 1. Check current login authentication state
     AllmonLinkAPI.checkAuth().then(res => {
       if (res.success && res.data === 'Logged In') {
