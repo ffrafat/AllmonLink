@@ -1,0 +1,6 @@
+# Ignore the legacy Allmon3 source code (kept for dev reference)
+allmon3/
+
+# Local OS files
+.DS_Store
+Thumbs.db

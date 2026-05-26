@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="AllmonLink - Mobile Dashboard for AllStarLink">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AllmonLink</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS Links -->
+    <link href="css/app.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/icons/icon-192.png">
+</head>
+<body class="theme-dark">
+
+    <!-- SVG Icons Asset Bundle -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-node" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+        </symbol>
+        <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </symbol>
+        <symbol id="icon-unlink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+            <line x1="12" y1="2" x2="12" y2="12"></line>
+        </symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </symbol>
+        <symbol id="icon-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+            <line x1="12" y1="2" x2="12" y2="12"></line>
+        </symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </symbol>
+        <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+        </symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </symbol>
+        <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </symbol>
+    </svg>
+
+    <!-- Top Sticky Header -->
+    <header class="app-header">
+        <button id="menu-btn" class="header-action-btn" aria-label="Open Navigation Menu">
+            <svg class="icon"><use xlink:href="#icon-menu"></use></svg>
+        </button>
+        <div class="header-title">
+            <span class="logo-accent">Allmon</span>Link
+        </div>
+        <button id="auth-status-btn" class="header-action-btn" aria-label="Account Settings">
+            <svg class="icon"><use xlink:href="#icon-user"></use></svg>
+        </button>
+    </header>
+
+    <!-- Left Off-Canvas Sidebar Menu -->
+    <div id="sidebar-overlay" class="overlay"></div>
+    <aside id="sidebar" class="app-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Monitored Nodes</div>
+            <button id="sidebar-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <div id="node-navigation-list" class="nav-list">
+                <!-- Dynamic navigation nodes populate here -->
+                <div class="nav-loading">Loading nodes...</div>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-footer">
+                <p class="app-version">AllmonLink v1.0.0</p>
+                <p class="copyright">&copy; AllStarLink</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main View Dashboard -->
+    <main class="app-main-content">
+        <div id="dashboard-view" class="view-container">
+            <!-- Node cards populate here dynamically -->
+            <div class="initial-loader">
+                <div class="spinner"></div>
+                <p>Connecting to AllmonLink...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Actions / Linking Console Overlay (Slide-up Panel) -->
+    <div id="console-overlay" class="overlay"></div>
+    <div id="console-panel" class="bottom-sheet">
+        <div class="bottom-sheet-handle"></div>
+        <div class="bottom-sheet-header">
+            <div class="bottom-sheet-title" id="console-title">Link Manager - Node 50815</div>
+            <button id="console-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="bottom-sheet-body">
+            <form id="link-form" class="bottom-sheet-form">
+                <input type="hidden" id="link-node-source" value="">
+                
+                <div class="form-group">
+                    <label for="link-command-type">Action</label>
+                    <div class="segmented-control">
+                        <input type="radio" name="link-cmd" id="cmd-connect" value="3" checked>
+                        <label for="cmd-connect">Connect</label>
+
+                        <input type="radio" name="link-cmd" id="cmd-monitor" value="2">
+                        <label for="cmd-monitor">Monitor</label>
+
+                        <input type="radio" name="link-cmd" id="cmd-disconnect" value="1">
+                        <label for="cmd-disconnect">Disconnect</label>
+                    </div>
+                </div>
+
+                <div class="form-group row-group">
+                    <div class="form-subgroup flex-2">
+                        <label for="link-target-node">Target Node #</label>
+                        <input type="number" id="link-target-node" placeholder="e.g. 1999" pattern="[0-9]*" inputmode="numeric" required>
+                    </div>
+                    <div class="form-subgroup flex-1">
+                        <label for="link-perm">Permanent</label>
+                        <select id="link-perm">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Execute Command</button>
+            </form>
+
+            <hr class="form-divider">
+
+            <!-- System / Custom Commands CLI Trigger -->
+            <div class="custom-cli-area">
+                <div class="section-subtitle">System Command Templates</div>
+                <div id="system-commands-container" class="quick-commands-grid">
+                    <!-- Quick action buttons populate here -->
+                </div>
+                <div class="custom-command-row">
+                    <input type="text" id="custom-cli-cmd" placeholder="Enter custom Asterisk command..." autocomplete="off" autocapitalize="none">
+                    <button id="custom-cli-exec-btn" class="btn btn-secondary">Run</button>
+                </div>
+            </div>
+
+            <!-- Command Output Display console -->
+            <div id="console-output" class="cli-console">
+                <div class="cli-placeholder">Awaiting execution...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Lockout Modal -->
+    <div id="login-modal" class="modal-container">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Sign In</h3>
+                <button id="login-close-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="login-error" class="alert alert-danger" style="display: none;"></div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-user">Username</label>
+                        <input type="text" id="login-user" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-pass">Password</label>
+                        <input type="password" id="login-pass" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Script Links -->
+    <script src="js/api.js"></script>
+    <script src="js/telemetry.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
