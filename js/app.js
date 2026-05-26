@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- UI SELECTORS ---
   const el = {
     menuBtn: document.getElementById('menu-btn'),
+    themeToggleBtn: document.getElementById('theme-toggle-btn'),
     authBtn: document.getElementById('auth-status-btn'),
     sidebar: document.getElementById('sidebar'),
     sidebarOverlay: document.getElementById('sidebar-overlay'),
@@ -568,11 +569,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Formats auth buttons inside header bar
   const updateAuthHeaderState = (loggedIn) => {
     if (loggedIn) {
-      el.authBtn.innerHTML = '<svg class="icon" style="color:var(--success)"><use xlink:href="#icon-power"></use></svg>';
+      el.authBtn.innerHTML = '<svg class="icon" style="color:var(--danger)"><use xlink:href="#icon-logout"></use></svg>';
       el.authBtn.onclick = handleLogout;
       el.authBtn.ariaLabel = 'Sign Out';
     } else {
-      el.authBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-user"></use></svg>';
+      el.authBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-login"></use></svg>';
       el.authBtn.onclick = () => toggleLoginModal(true);
       el.authBtn.ariaLabel = 'Sign In';
     }
@@ -646,6 +647,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- EVENTS BINDING ---
   
+  el.themeToggleBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('theme-light');
+    localStorage.setItem('allmonlink_theme', isLight ? 'light' : 'dark');
+    
+    if (isLight) {
+      el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-moon"></use></svg>';
+      showToast('Light theme active', 'info');
+    } else {
+      el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-sun"></use></svg>';
+      showToast('AMOLED dark theme active', 'info');
+    }
+  });
+
   el.menuBtn.addEventListener('click', () => toggleSidebar(true));
   el.sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
   el.sidebarClose.addEventListener('click', () => toggleSidebar(false));
@@ -669,6 +683,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- INITIALIZATION PIPELINE ---
 
   const initApp = () => {
+    // 0. Initialize theme setting
+    const currentTheme = localStorage.getItem('allmonlink_theme') || 'dark';
+    if (currentTheme === 'light') {
+      document.body.classList.add('theme-light');
+      el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-moon"></use></svg>';
+    } else {
+      document.body.classList.remove('theme-light');
+      el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-sun"></use></svg>';
+    }
+
     // Check for updates against remote GitHub repo
     checkForUpdates();
 
