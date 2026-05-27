@@ -1098,60 +1098,116 @@ body.theme-light .toast {
   letter-spacing: 0.5px;
 }
 
-/* Vector Waveform Animations */
-.live-activity-wave {
+/* Global Vector Icon Helper Styles */
+.icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon-inline {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Equalizer Bouncing Waveform Visualizer */
+.live-activity-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 52px;
   width: 100%;
-  height: 48px;
+  padding: 0 16px;
   background-color: var(--surface-subtle);
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
   overflow: hidden;
   position: relative;
-  display: flex;
-  align-items: center;
+  box-sizing: border-box;
 }
 
-.waveform-svg {
-  width: 200%;
-  height: 100%;
+.waveform-bar {
+  flex: 1;
+  max-width: 3px;
+  height: 6px;
+  border-radius: 2px;
+  background-color: var(--text-secondary);
+  opacity: 0.3;
+  transform-origin: center;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
 }
 
-.wave-path {
-  stroke-dasharray: 4 2;
-  transition: stroke 0.3s ease;
+/* State changes for waveform animations */
+.host-node-card.status-idle .waveform-bar {
+  animation: bounce-idle 2.0s ease-in-out infinite;
+  background-color: var(--success);
+  opacity: 0.65;
 }
 
-/* Active states for wave path animation */
-.waveform-svg.animate-tx .wave-path {
-  animation: wave-slide 4s linear infinite, wave-height-tx 0.8s ease-in-out infinite alternate;
-  stroke: var(--danger);
-  stroke-dasharray: none;
+.host-node-card.status-tx .waveform-bar {
+  animation: bounce-tx 0.7s ease-in-out infinite;
+  background-color: var(--danger);
+  opacity: 0.95;
 }
 
-.waveform-svg.animate-network .wave-path {
-  animation: wave-slide 8s linear infinite, wave-height-rx 1.2s ease-in-out infinite alternate;
-  stroke: var(--info);
-  stroke-dasharray: none;
+.host-node-card.status-network .waveform-bar {
+  animation: bounce-rx 1.1s ease-in-out infinite;
+  background-color: var(--info);
+  opacity: 0.8;
 }
 
-.waveform-svg.animate-idle .wave-path {
-  animation: wave-slide 20s linear infinite;
-  stroke: var(--success);
+/* Staggered delay mapping for natural fluid wave movement */
+.waveform-bar:nth-child(odd) {
+  animation-duration: 0.8s;
+}
+.waveform-bar:nth-child(even) {
+  animation-duration: 1.0s;
+}
+.waveform-bar:nth-child(3n) {
+  animation-delay: -0.2s;
+  animation-duration: 1.2s;
+}
+.waveform-bar:nth-child(4n) {
+  animation-delay: -0.4s;
+  animation-duration: 0.75s;
+}
+.waveform-bar:nth-child(5n) {
+  animation-delay: -0.6s;
+  animation-duration: 1.35s;
+}
+.waveform-bar:nth-child(7n) {
+  animation-delay: -0.8s;
+  animation-duration: 0.9s;
 }
 
-@keyframes wave-slide {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+@keyframes bounce-idle {
+  0%, 100% { transform: scaleY(1.0); }
+  50% { transform: scaleY(2.2); }
 }
 
-@keyframes wave-height-tx {
-  from { transform: scaleY(0.4) translateY(25%); }
-  to { transform: scaleY(1.3) translateY(-10%); }
+@keyframes bounce-tx {
+  0%, 100% { transform: scaleY(1.2); }
+  50% { transform: scaleY(6.5); }
 }
 
-@keyframes wave-height-rx {
-  from { transform: scaleY(0.6) translateY(15%); }
-  to { transform: scaleY(1.0) translateY(0%); }
+@keyframes bounce-rx {
+  0%, 100% { transform: scaleY(1.0); }
+  50% { transform: scaleY(4.5); }
 }
 
 /* Sliding Node Details Panel Overlay (iOS Navigation Style) */

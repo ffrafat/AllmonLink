@@ -171,21 +171,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderSidebarAuth = () => {
     if (state.isAuthenticated) {
       el.sidebarAuthSection.innerHTML = `
-        <div class="sidebar-auth-title">Account</div>
+        <div class="sidebar-auth-title" style="display:flex; align-items:center; gap:6px;">
+          <svg class="icon-inline" style="color:var(--primary);"><use xlink:href="#icon-shield"></use></svg>
+          <span>Account</span>
+        </div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background-color:var(--surface-subtle); border:1px solid var(--border-subtle); border-radius:10px;">
           <span style="font-weight:600; font-size:0.9rem;">Logged In</span>
-          <button type="button" id="sidebar-logout-btn" class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem; border-radius:6px;">Log Out</button>
+          <button type="button" id="sidebar-logout-btn" class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem; border-radius:6px; display:flex; align-items:center; gap:4px;">
+            <svg class="icon-inline" style="width:12px; height:12px;"><use xlink:href="#icon-logout"></use></svg>
+            <span>Log Out</span>
+          </button>
         </div>
       `;
       document.getElementById('sidebar-logout-btn').addEventListener('click', handleSidebarLogout);
     } else {
       el.sidebarAuthSection.innerHTML = `
-        <div class="sidebar-auth-title">Sign In</div>
+        <div class="sidebar-auth-title" style="display:flex; align-items:center; gap:6px;">
+          <svg class="icon-inline" style="color:var(--primary);"><use xlink:href="#icon-login"></use></svg>
+          <span>Sign In</span>
+        </div>
         <form id="sidebar-login-form" style="display:flex; flex-direction:column; gap:8px;">
           <div id="sidebar-login-error" class="alert alert-danger" style="display:none; padding:6px 8px; font-size:0.75rem;"></div>
           <input type="text" id="sidebar-login-user" placeholder="Username" required style="padding:10px 12px; font-size:0.9rem; border-radius:8px;">
           <input type="password" id="sidebar-login-pass" placeholder="Password" required style="padding:10px 12px; font-size:0.9rem; border-radius:8px;">
-          <button type="submit" class="btn btn-primary" style="padding:10px; font-size:0.9rem; border-radius:8px;">Log In</button>
+          <button type="submit" class="btn btn-primary" style="padding:10px; font-size:0.9rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg class="icon-inline"><use xlink:href="#icon-login"></use></svg>
+            <span>Log In</span>
+          </button>
         </form>
       `;
       document.getElementById('sidebar-login-form').addEventListener('submit', handleSidebarLoginSubmit);
@@ -245,7 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
       item.href = `#${nodeId}`;
       item.className = `nav-item ${activeClass}`;
       item.innerHTML = `
-        <span>Node ${nodeId}${customName}</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg class="icon" style="width:16px; height:16px; opacity:0.75;"><use xlink:href="#icon-node"></use></svg>
+          <span>Node ${nodeId}${customName}</span>
+        </div>
         <svg class="icon"><use xlink:href="#icon-chevron-right"></use></svg>
       `;
       
@@ -308,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Dynamic Host Card + Live SVG Animation & Compact Connected Cards grid
+  // Dynamic Host Card + Live Equalizer Waveform & Compact Connected Cards grid
   const renderHomepageLayout = (nodeId, data, ptt) => {
     el.dashboard.innerHTML = ''; // Keep homepage refreshed on updates
 
@@ -317,43 +333,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Build PTT UI ring status & wave classes
     let ringClass = 'idle';
-    let waveAnimateClass = 'animate-idle';
+    let statusClass = 'status-idle';
     if (ptt.mode === 'tx-local') {
       ringClass = 'tx';
-      waveAnimateClass = 'animate-tx';
+      statusClass = 'status-tx';
     } else if (ptt.mode === 'tx-network' || ptt.mode === 'tx-telemetry') {
       ringClass = 'network';
-      waveAnimateClass = 'animate-network';
+      statusClass = 'status-network';
     }
     
     const pttInfo = ptt.txDurationSec > 0 ? `${ptt.label} (${ptt.txDurationSec}s)` : ptt.label;
 
+    // Build equalizer bars HTML
+    let waveBarsHtml = '';
+    for (let i = 0; i < 36; i++) {
+      waveBarsHtml += '<div class="waveform-bar"></div>';
+    }
+
     // 1. Host Node card (First Primary Card)
     const hostCard = document.createElement('div');
-    hostCard.className = 'node-card host-node-card';
+    hostCard.className = `node-card host-node-card ${statusClass}`;
     hostCard.innerHTML = `
       <div class="node-card-header" style="border: none;">
         <div class="node-title-area">
-          <div class="node-card-title">
+          <div class="node-card-title" style="display:flex; align-items:center; gap:8px;">
             <span class="status-ring ${ringClass}" title="${pttInfo}"></span>
-            Host Node ${nodeId}
+            <svg class="icon" style="width:18px; height:18px; color:var(--text-secondary); opacity:0.8;"><use xlink:href="#icon-node"></use></svg>
+            <span>Host Node ${nodeId}</span>
           </div>
           <div class="node-card-desc">${desc}</div>
           <div class="node-meta-grid">
-            <span class="meta-pill">Links: ${connCount}</span>
-            <span class="meta-pill">Uptime: ${uptimeStr}</span>
-            <span class="meta-pill">${pttInfo}</span>
+            <span class="meta-pill" style="display:inline-flex; align-items:center; gap:4px;">
+              <svg class="icon-inline" style="opacity:0.8; color:var(--primary);"><use xlink:href="#icon-link"></use></svg>
+              <span>Links: ${connCount}</span>
+            </span>
+            <span class="meta-pill" style="display:inline-flex; align-items:center; gap:4px;">
+              <svg class="icon-inline" style="opacity:0.8; color:var(--primary);"><use xlink:href="#icon-clock"></use></svg>
+              <span>Uptime: ${uptimeStr}</span>
+            </span>
+            <span class="meta-pill" style="display:inline-flex; align-items:center; gap:4px;">
+              <svg class="icon-inline" style="opacity:0.8; color:var(--primary);"><use xlink:href="#icon-activity"></use></svg>
+              <span>${pttInfo}</span>
+            </span>
           </div>
         </div>
       </div>
       
-      <!-- Live Vector Waveform Visualizer -->
-      <div class="live-activity-wave">
-        <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="waveform-svg ${waveAnimateClass}">
-          <path class="wave-path" d="M0,15 Q12.5,5 25,15 T50,15 T75,15 T100,15 L100,30 L0,30 Z" fill="rgba(0,114,245,0.02)" stroke="currentColor" stroke-width="0.8"></path>
-          <path class="wave-path" d="M0,15 Q12.5,22 25,15 T50,15 T75,15 T100,15" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.8"></path>
-          <path class="wave-path" d="M0,15 Q12.5,15 25,15 T50,15 T75,15 T100,15" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.5"></path>
-        </svg>
+      <!-- Live Equalizer Waveform Visualizer -->
+      <div class="live-activity-waveform">
+        ${waveBarsHtml}
       </div>
     `;
     el.dashboard.appendChild(hostCard);
@@ -362,7 +390,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const listHeader = document.createElement('div');
     listHeader.className = 'section-label';
     listHeader.style.margin = '14px 4px 6px 4px';
-    listHeader.innerText = 'Connected Links';
+    listHeader.style.display = 'flex';
+    listHeader.style.alignItems = 'center';
+    listHeader.style.gap = '6px';
+    listHeader.innerHTML = `
+      <svg class="icon-inline" style="opacity:0.6;"><use xlink:href="#icon-link"></use></svg>
+      <span>Connected Links</span>
+    `;
     el.dashboard.appendChild(listHeader);
 
     // 3. Compact cards list
@@ -382,7 +416,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isKeyed) cardClass = 'conn-keyed';
         if (isConnecting) cardClass = 'conn-connecting';
         
-        const dirBadge = c.DIR === 'IN' ? '<span class="direction-badge direction-in">IN</span>' : '<span class="direction-badge direction-out">OUT</span>';
+        const dirBadge = c.DIR === 'IN' 
+          ? `<span class="direction-badge direction-in" style="display:inline-flex; align-items:center; gap:2px;"><svg class="icon-inline" style="width:10px; height:10px; stroke-width:3;"><use xlink:href="#icon-arrow-down-left"></use></svg>IN</span>` 
+          : `<span class="direction-badge direction-out" style="display:inline-flex; align-items:center; gap:2px;"><svg class="icon-inline" style="width:10px; height:10px; stroke-width:3;"><use xlink:href="#icon-arrow-up-right"></use></svg>OUT</span>`;
+          
         const lastRx = isKeyed ? 'Active Now' : (c.SSU > -1 ? formatSeconds(c.SSU) + ' ago' : 'Never');
 
         const compactCard = document.createElement('div');
@@ -392,12 +429,20 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="node-card-header" style="border: none; padding: 12px 14px;">
             <div class="node-title-area">
               <div class="node-card-title" style="font-size: 1rem; gap: 8px;">
-                Node ${connId} ${dirBadge}
+                <svg class="icon" style="width:16px; height:16px; color:var(--text-secondary); opacity:0.8;"><use xlink:href="#icon-node"></use></svg>
+                <span>Node ${connId}</span>
+                ${dirBadge}
               </div>
               <div class="node-card-desc" style="font-size: 0.75rem;">${c.DESC || 'Private / Unavailable'}</div>
               <div class="node-meta-grid" style="font-size: 0.65rem;">
-                <span>Active: ${c.CTIME}</span>
-                <span>Last RX: ${lastRx}</span>
+                <span class="meta-pill" style="display:inline-flex; align-items:center; gap:3px;">
+                  <svg class="icon-inline" style="width:10px; height:10px; opacity:0.7;"><use xlink:href="#icon-clock"></use></svg>
+                  <span>Active: ${c.CTIME}</span>
+                </span>
+                <span class="meta-pill" style="display:inline-flex; align-items:center; gap:3px;">
+                  <svg class="icon-inline" style="width:10px; height:10px; opacity:0.7;"><use xlink:href="#icon-activity"></use></svg>
+                  <span>Last RX: ${lastRx}</span>
+                </span>
               </div>
             </div>
             <div class="header-controls">
