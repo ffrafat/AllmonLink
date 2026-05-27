@@ -90,7 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
     qcLinkPerm: document.getElementById('qc-link-perm'),
     favoritesBookmarksGrid: document.getElementById('favorites-bookmarks-grid'),
     
-    toastContainer: document.getElementById('toast-container')
+    toastContainer: document.getElementById('toast-container'),
+    
+    headerNodeSelector: document.getElementById('header-node-selector'),
+    cliOutputModal: document.getElementById('cli-output-modal'),
+    cliModalText: document.getElementById('cli-modal-text'),
+    cliModalClose: document.getElementById('cli-modal-close-btn'),
+    cliModalOk: document.getElementById('cli-modal-ok-btn')
   };
 
   // --- HELPER FUNCTIONS ---
@@ -273,35 +279,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- VIEW RENDERERS ---
 
-  const renderSidebarNavigation = () => {
+  const renderHeaderNodeSelector = () => {
+    if (!el.headerNodeSelector) return;
+    el.headerNodeSelector.innerHTML = '';
+    
     if (state.nodes.length === 0) {
-      el.navContainer.innerHTML = '<div class="nav-loading">No nodes configured.</div>';
+      const opt = document.createElement('option');
+      opt.text = 'No nodes';
+      el.headerNodeSelector.appendChild(opt);
       return;
     }
-
-    el.navContainer.innerHTML = '';
+    
     state.nodes.forEach(nodeId => {
-      const activeClass = state.activeNodes.includes(nodeId) ? 'active' : '';
       const customName = state.overrides[nodeId] ? ` (${state.overrides[nodeId]})` : '';
+      const opt = document.createElement('option');
+      opt.value = nodeId;
+      opt.text = `Node ${nodeId}${customName}`;
       
-      const item = document.createElement('a');
-      item.href = `#${nodeId}`;
-      item.className = `nav-item ${activeClass}`;
-      item.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <svg class="icon" style="width:16px; height:16px; opacity:0.75;"><use xlink:href="#icon-node"></use></svg>
-          <span>Node ${nodeId}${customName}</span>
-        </div>
-        <svg class="icon"><use xlink:href="#icon-chevron-right"></use></svg>
-      `;
+      if (state.activeNodes.includes(nodeId)) {
+        opt.selected = true;
+      }
       
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleSidebar(false);
-        selectActiveNode(nodeId);
-      });
-
-      el.navContainer.appendChild(item);
+      el.headerNodeSelector.appendChild(opt);
     });
   };
 
@@ -311,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.dashboard.innerHTML = '';
     
     state.activeNodes = [nodeId];
-    renderSidebarNavigation();
+    renderHeaderNodeSelector();
     
     // Update sidebar top node info block
     const customDesc = state.overrides[nodeId] || 'AllStarLink Node Monitor';
@@ -568,6 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'Channels', cmd: 'iax2 show channels' },
       { label: 'Node Status', cmd: `rpt stats ${hostNodeId}` },
       { label: 'Link Status', cmd: `rpt lstats ${hostNodeId}` },
+      { label: 'Say Time', cmd: `rpt cmd ${hostNodeId} cop 21` },
       { label: 'Test Tone', cmd: `rpt cmd ${hostNodeId} cop 4 1` }
     ];
 
@@ -583,17 +583,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  // CLI Modal handlers
+  const displayCliModalOutput = (outputText) => {
+    if (el.cliModalText) {
+      el.cliModalText.textContent = outputText;
+    }
+    if (el.cliOutputModal) {
+      el.cliOutputModal.classList.add('active');
+    }
+  };
+
+  const closeCliModal = () => {
+    if (el.cliOutputModal) {
+      el.cliOutputModal.classList.remove('active');
+    }
+  };
+
   const executeDetailsCliCommand = (hostNodeId, cmdStr) => {
-    el.detailsConsoleOutput.innerHTML = '<div class="spinner" style="margin: 32px auto;"></div>';
+    showToast('Executing command...', 'info');
 
     AllmonTouchAPI.executeCommand(hostNodeId, cmdStr).then(res => {
       if (res.success) {
         let out = res.data;
         try { out = atob(res.data); } catch(e) {}
-        el.detailsConsoleOutput.innerHTML = `<div>Command Executed successfully.</div><pre style="margin-top:8px;">${out}</pre>`;
+        displayCliModalOutput(out || 'No output returned.');
         showToast('Command executed successfully.', 'success');
       } else {
-        el.detailsConsoleOutput.innerHTML = `<div style="color:var(--danger);">Error: ${res.message}</div>`;
+        displayCliModalOutput(`Error: ${res.message || 'Unknown error'}`);
         showToast(res.message || 'Command failed.', 'error');
       }
     });
@@ -750,6 +766,29 @@ document.addEventListener('DOMContentLoaded', () => {
   el.connectSheetCloseBtn.addEventListener('click', () => toggleConnectSheet(false));
   el.quickConnectForm.addEventListener('submit', handleQuickConnectSubmit);
 
+  if (el.headerNodeSelector) {
+    el.headerNodeSelector.addEventListener('change', (e) => {
+      const selectedNodeId = Number(e.target.value);
+      if (selectedNodeId && !state.activeNodes.includes(selectedNodeId)) {
+        selectActiveNode(selectedNodeId);
+      }
+    });
+  }
+
+  if (el.cliModalClose) {
+    el.cliModalClose.addEventListener('click', closeCliModal);
+  }
+  if (el.cliModalOk) {
+    el.cliModalOk.addEventListener('click', closeCliModal);
+  }
+  if (el.cliOutputModal) {
+    el.cliOutputModal.addEventListener('click', (e) => {
+      if (e.target === el.cliOutputModal) {
+        closeCliModal();
+      }
+    });
+  }
+
   // --- INITIALIZATION PIPELINE ---
 
   const initApp = () => {
@@ -786,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
     AllmonTouchAPI.getNodeList().then(res => {
       if (res.success && res.data && res.data.length > 0) {
         state.nodes = res.data;
-        renderSidebarNavigation();
+        renderHeaderNodeSelector();
         
         const lastNode = Number(localStorage.getItem('allmontouch_last_node'));
         const defaultNode = state.nodes.includes(lastNode) ? lastNode : state.nodes[0];

@@ -4,165 +4,121 @@
  */
 
 :root {
-  /* Material 3 Dark Color Tokens */
-  --md-sys-color-primary: #a8c7fa; /* M3 Light Blue */
-  --md-sys-color-on-primary: #062e6f;
-  --md-sys-color-primary-container: #004494;
-  --md-sys-color-on-primary-container: #d2e4ff;
+  /* Shadcn UI Dark Tokens */
+  --bg-app: #000000;                      /* Pitch Black background */
+  --surface-card: #09090b;                /* Zinc-950 card background */
+  --surface-header: #000000;              /* Header background */
+  --surface-elevated: #18181b;            /* Zinc-900 elevated surface */
+  --border-subtle: #27272a;               /* Zinc-800 outline */
   
-  --md-sys-color-secondary: #c2c7cf;
-  --md-sys-color-on-secondary: #2c3137;
-  --md-sys-color-secondary-container: #44474e;
-  --md-sys-color-on-secondary-container: #e2e2e9;
-
-  --md-sys-color-surface: #121318; /* M3 dark base surface */
-  --md-sys-color-surface-dim: #121318;
-  --md-sys-color-surface-bright: #38393e;
-  --md-sys-color-surface-container-lowest: #0c0d12;
-  --md-sys-color-surface-container-low: #1a1b20;
-  --md-sys-color-surface-container: #1e1f25; /* Cards, drawer background */
-  --md-sys-color-surface-container-high: #282a30;
-  --md-sys-color-surface-container-highest: #33353b;
+  --text-primary: #fafafa;                /* Zinc-50 text */
+  --text-secondary: #a1a1aa;              /* Zinc-400 text */
+  --text-muted: #71717a;                  /* Zinc-500 text */
   
-  --md-sys-color-on-surface: #e2e2e9;
-  --md-sys-color-on-surface-variant: #c2c7cf;
-  --md-sys-color-outline: #8c9199;
-  --md-sys-color-outline-variant: #44474e;
+  /* Accent Colors - Highly Vibrant Neon */
+  --primary: #a855f7;                     /* Neon Purple */
+  --success: #10b981;                     /* Emerald Green (Active) */
+  --danger: #ec4899;                      /* Neon Hot Pink (Transmitting) */
+  --warning: #f59e0b;                     /* Amber Orange */
+  --info: #6366f1;                        /* Indigo Blue (Network traffic) */
 
-  /* State colors aligned with Material Design 3 */
-  --md-sys-color-error: #ffb4ab;
-  --md-sys-color-on-error: #690005;
-  --md-sys-color-error-container: #93000a;
-  --md-sys-color-on-error-container: #ffdad6;
+  --border-focus: var(--primary);
+  --primary-glow: rgba(168, 85, 247, 0.12);
+  --success-glow: rgba(16, 185, 129, 0.12);
   
-  --md-sys-color-success: #81d4fa; /* M3 Light teal/cyan for idle */
-  --md-sys-color-success-container: #004d61;
-  --md-sys-color-on-success-container: #bfe9ff;
-
-  --md-sys-color-warning: #ffd965; /* M3 yellow for connecting */
-  --md-sys-color-warning-container: #564000;
-  --md-sys-color-on-warning-container: #ffe08d;
-
-  --md-sys-color-info: #b3c5ff; /* M3 blue-grey for network */
-  --md-sys-color-info-container: #1b2e66;
-  --md-sys-color-on-info-container: #dce1ff;
-
-  /* Existing Variable Aliases Mapped to M3 Dark */
-  --bg-app: var(--md-sys-color-surface-container-lowest);
-  --surface-card: var(--md-sys-color-surface-container-low);
-  --surface-header: var(--md-sys-color-surface-container);
-  --surface-elevated: var(--md-sys-color-surface-container-high);
-  --border-subtle: var(--md-sys-color-outline-variant);
-  --border-focus: var(--md-sys-color-primary);
-  
-  --text-primary: var(--md-sys-color-on-surface);
-  --text-secondary: var(--md-sys-color-on-surface-variant);
-  --text-muted: var(--md-sys-color-outline);
-  
-  --primary: var(--md-sys-color-primary);
-  --primary-container: var(--md-sys-color-primary-container);
-  --on-primary-container: var(--md-sys-color-on-primary-container);
-  --secondary-container: var(--md-sys-color-secondary-container);
-  --on-secondary-container: var(--md-sys-color-on-secondary-container);
-  
-  --success: #66bb6a; /* Green */
-  --danger: #ef5350;  /* Red */
-  --warning: #ffca28; /* Yellow */
-  --info: #29b6f6;    /* Light Blue */
-
-  --surface-subtle: rgba(255, 255, 255, 0.04);
-  --surface-subtle-hover: rgba(255, 255, 255, 0.08);
-  --input-bg: var(--md-sys-color-surface-container-low);
-  --input-bg-focus: var(--md-sys-color-surface-container-high);
+  /* Dynamic Backgrounds */
+  --surface-subtle: rgba(255, 255, 255, 0.03);
+  --surface-subtle-hover: rgba(255, 255, 255, 0.07);
+  --input-bg: #09090b;
+  --input-bg-focus: #09090b;
 
   /* Layout and Transitions */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --header-height: calc(64px + var(--safe-top)); /* standard M3 header height is 64px */
+  --header-height: calc(56px + var(--safe-top));
   --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  /* Material 3 Shadow Levels */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15); /* Elevation 1 */
-  --shadow-md: 0 4px 8px 3px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15); /* Elevation 3 */
-  --transition-smooth: all 0.2s cubic-bezier(0.2, 0, 0, 1); /* standard M3 easing */
-  --radius-card: 16px;
-  --radius-button: 100px; /* Pill buttons */
+  /* Subtle borders as per Shadcn UI (shadows are extremely light) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --transition-smooth: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  --radius-card: 10px;
+  --radius-button: 6px;
+  --radius-input: 6px;
+
+  /* M3 Compatibility Mapping */
+  --md-sys-color-primary: var(--primary);
+  --md-sys-color-primary-container: var(--primary-glow);
+  --md-sys-color-on-primary-container: var(--text-primary);
+  --md-sys-color-secondary-container: var(--surface-subtle-hover);
+  --md-sys-color-on-secondary-container: var(--text-primary);
+  
+  --md-sys-color-surface: var(--surface-card);
+  --md-sys-color-surface-container: var(--surface-card);
+  --md-sys-color-surface-container-high: var(--surface-elevated);
+  --md-sys-color-surface-container-highest: var(--surface-elevated);
+  
+  --md-sys-color-on-surface: var(--text-primary);
+  --md-sys-color-on-surface-variant: var(--text-secondary);
+  --md-sys-color-outline: var(--text-muted);
+  --md-sys-color-outline-variant: var(--border-subtle);
+  
+  --md-sys-color-error-container: rgba(236, 72, 153, 0.1);
+  --md-sys-color-on-error-container: var(--danger);
 }
 
 /* Light Theme Variables */
 body.theme-light {
-  /* Material 3 Light Color Tokens */
-  --md-sys-color-primary: #005FAF; /* M3 Blue */
-  --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-primary-container: #d2e4ff;
-  --md-sys-color-on-primary-container: #001d37;
+  /* Shadcn UI Light Tokens */
+  --bg-app: #ffffff;                      /* Pure White background */
+  --surface-card: #ffffff;                /* White cards */
+  --surface-header: #ffffff;
+  --surface-elevated: #f4f4f5;            /* Zinc-100 */
+  --border-subtle: #e4e4e7;               /* Zinc-200 outline */
   
-  --md-sys-color-secondary: #535f70;
-  --md-sys-color-on-secondary: #ffffff;
-  --md-sys-color-secondary-container: #d6e3f7;
-  --md-sys-color-on-secondary-container: #101c2b;
-
-  --md-sys-color-surface: #f8f9ff;
-  --md-sys-color-surface-dim: #d9dae0;
-  --md-sys-color-surface-bright: #f8f9ff;
-  --md-sys-color-surface-container-lowest: #ffffff;
-  --md-sys-color-surface-container-low: #f3f3f9;
-  --md-sys-color-surface-container: #ededf4;
-  --md-sys-color-surface-container-high: #e7e7ee;
-  --md-sys-color-surface-container-highest: #e1e2e8;
+  --text-primary: #09090b;                /* Zinc-950 text */
+  --text-secondary: #71717a;              /* Zinc-500 text */
+  --text-muted: #a1a1aa;                  /* Zinc-400 text */
   
-  --md-sys-color-on-surface: #1a1b20;
-  --md-sys-color-on-surface-variant: #43474e;
-  --md-sys-color-outline: #73777f;
-  --md-sys-color-outline-variant: #c3c7cf;
+  /* Vibrant Light accents */
+  --primary: #7c3aed;                     /* Violet Purple */
+  --success: #16a34a;                     /* Green */
+  --danger: #db2777;                      /* Hot Pink */
+  --warning: #ea580c;                     /* Orange */
+  --info: #4f46e5;                        /* Indigo */
 
-  --md-sys-color-error: #ba1a1a;
-  --md-sys-color-on-error: #ffffff;
-  --md-sys-color-error-container: #ffdad6;
-  --md-sys-color-on-error-container: #410002;
+  --border-focus: var(--primary);
+  --primary-glow: rgba(124, 58, 237, 0.08);
+  --success-glow: rgba(22, 163, 74, 0.08);
   
-  --md-sys-color-success: #006877;
-  --md-sys-color-success-container: #a2efff;
-  --md-sys-color-on-success-container: #001f25;
-
-  --md-sys-color-warning: #745b00;
-  --md-sys-color-warning-container: #ffe08d;
-  --md-sys-color-on-warning-container: #241a00;
-
-  --md-sys-color-info: #2c5ba8;
-  --md-sys-color-info-container: #dbe1ff;
-  --md-sys-color-on-info-container: #00174a;
-
-  /* Variable Aliases Mapped to M3 Light */
-  --bg-app: var(--md-sys-color-surface-container-low);
-  --surface-card: var(--md-sys-color-surface-container-lowest);
-  --surface-header: var(--md-sys-color-surface-container);
-  --surface-elevated: var(--md-sys-color-surface-container-high);
-  --border-subtle: var(--md-sys-color-outline-variant);
-  --border-focus: var(--md-sys-color-primary);
+  --surface-subtle: rgba(0, 0, 0, 0.02);
+  --surface-subtle-hover: rgba(0, 0, 0, 0.05);
+  --input-bg: #ffffff;
+  --input-bg-focus: #ffffff;
   
-  --text-primary: var(--md-sys-color-on-surface);
-  --text-secondary: var(--md-sys-color-on-surface-variant);
-  --text-muted: var(--md-sys-color-outline);
-  
-  --primary: var(--md-sys-color-primary);
-  --primary-container: var(--md-sys-color-primary-container);
-  --on-primary-container: var(--md-sys-color-on-primary-container);
-  --secondary-container: var(--md-sys-color-secondary-container);
-  --on-secondary-container: var(--md-sys-color-on-secondary-container);
-  
-  --success: #2e7d32;
-  --danger: #d32f2f;
-  --warning: #fbc02d;
-  --info: #1976d2;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
 
-  --surface-subtle: rgba(0, 0, 0, 0.04);
-  --surface-subtle-hover: rgba(0, 0, 0, 0.08);
-  --input-bg: var(--md-sys-color-surface-container-low);
-  --input-bg-focus: var(--md-sys-color-surface-container-high);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px 1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 8px 3px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  /* M3 Compatibility Mapping for Light Theme */
+  --md-sys-color-primary: var(--primary);
+  --md-sys-color-primary-container: var(--primary-glow);
+  --md-sys-color-on-primary-container: var(--text-primary);
+  --md-sys-color-secondary-container: var(--surface-subtle-hover);
+  --md-sys-color-on-secondary-container: var(--text-primary);
+  
+  --md-sys-color-surface: var(--surface-card);
+  --md-sys-color-surface-container: var(--surface-card);
+  --md-sys-color-surface-container-high: var(--surface-elevated);
+  --md-sys-color-surface-container-highest: var(--surface-elevated);
+  
+  --md-sys-color-on-surface: var(--text-primary);
+  --md-sys-color-on-surface-variant: var(--text-secondary);
+  --md-sys-color-outline: var(--text-muted);
+  --md-sys-color-outline-variant: var(--border-subtle);
+  
+  --md-sys-color-error-container: rgba(219, 39, 119, 0.1);
+  --md-sys-color-on-error-container: var(--danger);
 }
 
 /* Base resets & containment */
@@ -990,8 +946,9 @@ input:focus, select:focus {
   flex: 1;
 }
 
-/* CLI Text Output Screen */
+/* CLI Text Output Screen (Hidden, rendered in Shadcn popup modal instead) */
 .cli-console {
+  display: none;
   background-color: #050507;
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
@@ -1238,9 +1195,10 @@ body.theme-light .toast {
 
 /* State changes for waveform animations */
 .host-node-card.status-idle .waveform-bar {
-  animation: bounce-idle 2.0s ease-in-out infinite;
+  animation: none !important;
   background-color: var(--success);
-  opacity: 0.65;
+  opacity: 0.3;
+  transform: scaleY(1.0);
 }
 
 .host-node-card.status-tx .waveform-bar {
@@ -1541,5 +1499,129 @@ body.theme-light .ripple {
     transform: scale(4.0);
     opacity: 0;
   }
+}
+
+/* Header Dropdown Select - Shadcn Style */
+.node-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-select {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 6px 32px 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: var(--radius-button);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: var(--transition-smooth);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-down' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+.header-select:hover {
+  background-color: var(--surface-subtle-hover);
+  border-color: var(--primary);
+}
+
+.header-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+body.theme-light .header-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-down' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Command Output Modal Popup (Shadcn style) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shadcn-modal {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-md);
+  transform: scale(0.95);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-overlay.active .shadcn-modal {
+  transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 20px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-subtle);
+  gap: 8px;
+}
+
+/* Nice clean non-terminal typography styling for CLI output */
+.cli-result-text {
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 16px;
 }
 

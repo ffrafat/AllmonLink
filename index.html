@@ -119,12 +119,22 @@
 
     <!-- Top Sticky Header -->
     <header class="app-header">
-        <button id="menu-btn" class="header-action-btn" aria-label="Open Navigation Menu">
-            <svg class="icon"><use xlink:href="#icon-menu"></use></svg>
-        </button>
-        <div class="header-title">
-            <span class="logo-accent">Allmon</span>Touch
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button id="menu-btn" class="header-action-btn" aria-label="Open Navigation Menu">
+                <svg class="icon"><use xlink:href="#icon-menu"></use></svg>
+            </button>
+            <div class="header-title">
+                <span class="logo-accent">Allmon</span>Touch
+            </div>
         </div>
+        
+        <!-- Header Node Selector Dropdown -->
+        <div class="node-select-wrapper">
+            <select id="header-node-selector" class="header-select" aria-label="Select Monitored Node">
+                <!-- Configured Node Options populated dynamically -->
+            </select>
+        </div>
+
         <div style="display: flex; gap: 8px;">
             <button id="theme-toggle-btn" class="header-action-btn" aria-label="Toggle Dark/Light Theme">
                 <svg class="icon"><use xlink:href="#icon-sun"></use></svg>
@@ -149,22 +159,11 @@
             <p class="sidebar-node-meta" id="sidebar-node-description" style="margin-top: 4px;">No details available</p>
         </div>
 
-        <div class="sidebar-header" style="height: auto; padding: 10px 18px; border: none;">
-            <div class="sidebar-title" style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-                <svg class="icon-inline" style="opacity: 0.6;"><use xlink:href="#icon-node"></use></svg>
-                <span>Monitored Nodes</span>
-            </div>
-            <button id="sidebar-close-btn" class="close-btn">&times;</button>
+        <div class="sidebar-header" style="height: auto; padding: 12px 18px; border: none; display: flex; align-items: center; justify-content: flex-end;">
+            <button id="sidebar-close-btn" class="close-btn" style="margin-left: auto;">&times;</button>
         </div>
         
         <div class="sidebar-content">
-            <div id="node-navigation-list" class="nav-list">
-                <!-- Dynamic navigation nodes populate here -->
-                <div class="nav-loading">Loading nodes...</div>
-            </div>
-            
-            <hr class="sidebar-divider">
-            
             <!-- Auth Login Form or User Info & Logout Button -->
             <div id="sidebar-auth-section" class="sidebar-auth-wrapper">
                 <!-- Will render forms or profile actions dynamically -->
@@ -313,6 +312,27 @@
               </div>
           </div>
       </div>
+
+    <!-- Command Output Modal (Shadcn style popup) -->
+    <div id="cli-output-modal" class="modal-overlay">
+        <div class="shadcn-modal">
+            <div class="modal-header">
+                <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+                    <svg class="icon" style="color: var(--primary);"><use xlink:href="#icon-terminal"></use></svg>
+                    <span>Command Result</span>
+                </div>
+                <button id="cli-modal-close-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="cli-modal-text" class="cli-result-text">
+                    Awaiting output...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cli-modal-ok-btn" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem; font-weight: 500;">Dismiss</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
