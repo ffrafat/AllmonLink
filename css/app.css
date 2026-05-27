@@ -37,11 +37,19 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --header-height: calc(56px + var(--safe-top));
   --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   
-  /* Subtle borders as per Shadcn UI (shadows are extremely light) */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --transition-smooth: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Fluent UI Elevations and Acrylic Materials */
+  --acrylic-dark: rgba(9, 9, 11, 0.65);
+  --acrylic-light: rgba(255, 255, 255, 0.65);
+  --mica-dark: rgba(0, 0, 0, 0.4);
+  --border-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --border-highlight-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+
+  /* Subtle borders and shadows (Fluent UI) */
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15);
+  --transition-smooth: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   
   --radius-card: 10px;
   --radius-button: 6px;
@@ -97,8 +105,8 @@ body.theme-light {
   --input-bg: #ffffff;
   --input-bg-focus: #ffffff;
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
 
   /* M3 Compatibility Mapping for Light Theme */
   --md-sys-color-primary: var(--primary);
@@ -160,7 +168,7 @@ button:active,
   transform: scale(0.96) !important;
 }
 
-/* Sticky Header - M3 Surface Container */
+/* Sticky Header - Fluent UI Acrylic Container */
 .app-header {
   position: fixed;
   top: 0;
@@ -168,16 +176,23 @@ button:active,
   width: 100%;
   height: var(--header-height);
   padding-top: var(--safe-top);
-  background-color: var(--md-sys-color-surface-container);
+  background-color: var(--acrylic-dark);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--border-highlight), var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-left: 16px;
   padding-right: 16px;
   z-index: 1000;
-  box-shadow: var(--shadow-sm);
   transition: var(--transition-smooth);
+}
+
+body.theme-light .app-header {
+  background-color: var(--acrylic-light);
+  box-shadow: var(--border-highlight-light), var(--shadow-sm);
 }
 
 .header-action-btn {
@@ -289,9 +304,12 @@ button:active,
   left: 0;
   width: 280px;
   height: 100%;
-  background-color: var(--md-sys-color-surface-container);
+  background-color: var(--acrylic-dark);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border-right: 1px solid var(--border-subtle);
   border-radius: 0 28px 28px 0;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--border-highlight), var(--shadow-md);
   z-index: 1200;
   transform: translateX(-100%);
   transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
@@ -299,6 +317,11 @@ button:active,
   flex-direction: column;
   padding-top: var(--safe-top);
   padding-bottom: var(--safe-bottom);
+}
+
+body.theme-light .app-sidebar {
+  background-color: var(--acrylic-light);
+  box-shadow: var(--border-highlight-light), var(--shadow-md);
 }
 
 .app-sidebar.active {
@@ -409,16 +432,20 @@ button:active,
   font-weight: 600;
 }
 
-/* OLED-Ready Minimalist Card layout */
+/* Fluent UI Card Layout */
 .node-card {
   background-color: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--border-highlight), var(--shadow-sm);
   display: flex;
   flex-direction: column;
   transition: var(--transition-smooth);
+}
+.node-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--border-highlight), var(--shadow-md);
 }
 
 .node-card-header {
@@ -437,6 +464,7 @@ button:active,
 
 /* Pulsing Status Ring Indicator (Minimal Telemetry) */
 .node-card-title {
+  font-family: var(--font-mono);
   font-size: 1.15rem;
   font-weight: 700;
   display: flex;
@@ -593,6 +621,7 @@ button:active,
 }
 
 .conn-node-name {
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.95rem;
   display: flex;
@@ -710,17 +739,20 @@ button:active,
   color: #ffffff;
 }
 
-/* Material 3 Bottom Sheets */
+/* Fluent UI Bottom Sheets */
 .bottom-sheet {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   max-height: 85%;
-  background-color: var(--md-sys-color-surface-container);
+  background-color: var(--acrylic-dark);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border-top: 1px solid var(--border-subtle);
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--border-highlight), var(--shadow-md);
   z-index: 1200;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
@@ -954,7 +986,7 @@ input:focus, select:focus {
   border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: #10b981;
   height: 110px;
@@ -967,6 +999,13 @@ input:focus, select:focus {
   font-style: italic;
   text-align: center;
   margin-top: 32px;
+}
+.cli-placeholder::after {
+  content: ' _';
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
 }
 
 /* Modal layers */
@@ -1190,7 +1229,7 @@ body.theme-light .toast {
   background-color: var(--text-secondary);
   opacity: 0.3;
   transform-origin: center;
-  transition: background-color 0.3s ease, opacity 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* State changes for waveform animations */
@@ -1239,17 +1278,33 @@ body.theme-light .toast {
 
 @keyframes bounce-idle {
   0%, 100% { transform: scaleY(1.0); }
-  50% { transform: scaleY(2.2); }
+  50% { transform: scaleY(1.5); }
 }
 
 @keyframes bounce-tx {
   0%, 100% { transform: scaleY(1.2); }
-  50% { transform: scaleY(6.5); }
+  50% { transform: scaleY(5.5); box-shadow: 0 0 8px var(--danger); }
 }
 
 @keyframes bounce-rx {
   0%, 100% { transform: scaleY(1.0); }
-  50% { transform: scaleY(4.5); }
+  50% { transform: scaleY(4.0); box-shadow: 0 0 6px var(--info); }
+}
+
+/* Staggered Loading Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
 }
 
 /* Sliding Node Details Panel Overlay (Android Native Slide-Up Style) */
@@ -1372,6 +1427,7 @@ body.theme-light .toast {
 }
 
 .metric-value {
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -1559,12 +1615,14 @@ body.theme-light .header-select {
 }
 
 .shadcn-modal {
-  background-color: var(--surface-card);
+  background-color: var(--acrylic-dark);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
   width: 90%;
   max-width: 500px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--border-highlight), var(--shadow-md);
   transform: scale(0.95);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
@@ -1607,7 +1665,7 @@ body.theme-light .header-select {
 
 /* Nice clean non-terminal typography styling for CLI output */
 .cli-result-text {
-  font-family: var(--font-family);
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   line-height: 1.5;
   color: var(--text-primary);

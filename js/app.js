@@ -391,7 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Host Node card (First Primary Card)
     const hostCard = document.createElement('div');
-    hostCard.className = `node-card host-node-card ${statusClass}`;
+    hostCard.className = `node-card host-node-card animate-fade-in-up ${statusClass}`;
+    hostCard.style.animationDelay = '0ms';
     hostCard.innerHTML = `
       <div class="node-card-header" style="border: none;">
         <div class="node-title-area">
@@ -446,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return bKeyed - aKeyed;
       });
 
-      sortedKeys.forEach(connId => {
+      sortedKeys.forEach((connId, index) => {
         const c = data.CONNS[connId];
         const isKeyed = (data.CONNKEYED && connId === data.CONNKEYEDNODE);
         const isConnecting = c.CSTATE === 'CONNECTING';
@@ -462,8 +463,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const lastRx = isKeyed ? 'Active Now' : (c.SSU > -1 ? formatSeconds(c.SSU) + ' ago' : 'Never');
 
         const compactCard = document.createElement('div');
-        compactCard.className = `node-card connected-node-card ${cardClass}`;
+        compactCard.className = `node-card connected-node-card animate-fade-in-up ${cardClass}`;
         compactCard.style.marginBottom = '6px';
+        compactCard.style.animationDelay = `${(index + 1) * 80}ms`;
         compactCard.innerHTML = `
           <div class="node-card-header" style="border: none; padding: 12px 14px;">
             <div class="node-title-area">
