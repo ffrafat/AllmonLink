@@ -278,13 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const connCount = data.CONNS ? Object.keys(data.CONNS).length : 0;
     const uptimeStr = formatSeconds(data.UPTIME);
 
-    // Build PTT UI accent rules
-    let pttClass = 'ptt-idle';
-    if (ptt.mode === 'tx-local') pttClass = 'ptt-tx';
-    if (ptt.mode === 'tx-network') pttClass = 'ptt-network';
-    if (ptt.mode === 'tx-telemetry') pttClass = 'ptt-network';
+    // Build PTT UI ring indicator rules
+    let ringClass = 'idle';
+    if (ptt.mode === 'tx-local') ringClass = 'tx';
+    if (ptt.mode === 'tx-network') ringClass = 'network';
+    if (ptt.mode === 'tx-telemetry') ringClass = 'network';
     
-    const pttDuration = ptt.txDurationSec > 0 ? ` (${ptt.txDurationSec}s)` : '';
+    const pttInfo = ptt.txDurationSec > 0 ? `${ptt.label} (${ptt.txDurationSec}s)` : ptt.label;
 
     // Render connection rows
     let connectionsHTML = '';
@@ -355,20 +355,20 @@ document.addEventListener('DOMContentLoaded', () => {
     card.innerHTML = `
       <div class="node-card-header">
         <div class="node-title-area">
-          <div class="node-card-title">Node ${nodeId}</div>
+          <div class="node-card-title">
+            <span class="status-ring ${ringClass}" title="${pttInfo}"></span>
+            Node ${nodeId}
+          </div>
           <div class="node-card-desc">${desc}</div>
           <div class="node-meta-grid">
             <span class="meta-pill">Links: ${connCount}</span>
             <span class="meta-pill">Uptime: ${uptimeStr}</span>
+            <span class="meta-pill">${pttInfo}</span>
           </div>
         </div>
         <div class="header-controls">
           ${commandConsoleBtn}
         </div>
-      </div>
-      
-      <div class="ptt-status-banner ${pttClass}">
-        ${ptt.label}${pttDuration}
       </div>
       
       <div class="connections-section">
