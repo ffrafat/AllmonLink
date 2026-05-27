@@ -69,10 +69,6 @@
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
         </symbol>
-        <symbol id="icon-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-            <line x1="12" y1="2" x2="12" y2="12"></line>
-        </symbol>
         <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -80,6 +76,10 @@
         </symbol>
         <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
+        </symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
         </symbol>
         <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -89,6 +89,9 @@
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </symbol>
+        <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
         </symbol>
     </svg>
 
@@ -104,26 +107,38 @@
             <button id="theme-toggle-btn" class="header-action-btn" aria-label="Toggle Dark/Light Theme">
                 <svg class="icon"><use xlink:href="#icon-sun"></use></svg>
             </button>
-            <button id="auth-status-btn" class="header-action-btn" aria-label="Account Settings">
-                <svg class="icon"><use xlink:href="#icon-login"></use></svg>
-            </button>
         </div>
     </header>
 
-    <!-- Left Off-Canvas Sidebar Menu -->
+    <!-- Left Off-Canvas Sidebar Menu (Drawer) -->
     <div id="sidebar-overlay" class="overlay"></div>
     <aside id="sidebar" class="app-sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-title">Monitored Nodes</div>
+        <!-- Node Call sign & info panel at the top -->
+        <div class="sidebar-node-info-container" id="sidebar-node-info">
+            <div class="sidebar-node-badge">Node</div>
+            <h3 class="sidebar-node-call" id="sidebar-node-title">---</h3>
+            <p class="sidebar-node-meta" id="sidebar-node-description">No details available</p>
+        </div>
+
+        <div class="sidebar-header" style="height: auto; padding: 10px 18px; border: none;">
+            <div class="sidebar-title" style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Monitored Nodes</div>
             <button id="sidebar-close-btn" class="close-btn">&times;</button>
         </div>
+        
         <div class="sidebar-content">
             <div id="node-navigation-list" class="nav-list">
                 <!-- Dynamic navigation nodes populate here -->
                 <div class="nav-loading">Loading nodes...</div>
             </div>
+            
             <hr class="sidebar-divider">
-            <div class="sidebar-footer">
+            
+            <!-- Auth Login Form or User Info & Logout Button -->
+            <div id="sidebar-auth-section" class="sidebar-auth-wrapper">
+                <!-- Will render forms or profile actions dynamically -->
+            </div>
+            
+            <div class="sidebar-footer" style="margin-top: auto;">
                 <p class="app-version">AllmonLink v1.0.0</p>
                 <p class="copyright">&copy; AllStarLink</p>
             </div>
@@ -141,90 +156,100 @@
         </div>
     </main>
 
-    <!-- Bottom Actions / Linking Console Overlay (Slide-up Panel) -->
-    <div id="console-overlay" class="overlay"></div>
-    <div id="console-panel" class="bottom-sheet">
-        <div class="bottom-sheet-handle"></div>
-        <div class="bottom-sheet-header">
-            <div class="bottom-sheet-title" id="console-title">Link Manager - Node 50815</div>
-            <button id="console-close-btn" class="close-btn">&times;</button>
-        </div>
-        <div class="bottom-sheet-body">
-            <form id="link-form" class="bottom-sheet-form">
-                <input type="hidden" id="link-node-source" value="">
+    <!-- Slide-in Details Page View (iOS Navigation Style) -->
+    <div id="node-details-view" class="details-view-container">
+        <header class="details-header">
+            <button id="details-back-btn" class="details-back-btn">
+                <svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg>
+                <span>Back</span>
+            </button>
+            <div class="details-header-title" id="details-view-title">Node Details</div>
+            <div style="width: 40px;"></div> <!-- Spacer to center title -->
+        </header>
+        
+        <div class="details-body">
+            <!-- Details metrics card -->
+            <div class="details-meta-card">
+                <h2 id="details-node-id">Node ----</h2>
+                <p class="details-desc-text" id="details-node-desc">Loading details...</p>
                 
-                <div class="form-group">
-                    <label for="link-command-type">Action</label>
-                    <div class="segmented-control">
-                        <input type="radio" name="link-cmd" id="cmd-connect" value="3" checked>
-                        <label for="cmd-connect">Connect</label>
-
-                        <input type="radio" name="link-cmd" id="cmd-monitor" value="2">
-                        <label for="cmd-monitor">Monitor</label>
-
-                        <input type="radio" name="link-cmd" id="cmd-disconnect" value="1">
-                        <label for="cmd-disconnect">Disconnect</label>
+                <div class="details-grid-metrics">
+                    <div class="metric-box">
+                        <span class="metric-label">Direction</span>
+                        <span class="metric-value" id="details-node-dir">---</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">Active Time</span>
+                        <span class="metric-value" id="details-node-time">00:00:00</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">Last RX</span>
+                        <span class="metric-value" id="details-node-rx">Never</span>
                     </div>
                 </div>
 
+                <button type="button" id="details-disconnect-btn" class="btn btn-primary btn-block btn-disconnect-action" style="margin-top: 16px;">
+                    Disconnect Node
+                </button>
+            </div>
+
+            <!-- Command execution module -->
+            <div class="details-command-card">
+                <h3 class="section-label">Commands Controller</h3>
+                
+                <div class="custom-command-row" style="margin-bottom: 16px;">
+                    <input type="text" id="details-cli-input" placeholder="Execute arbitrary CLI command..." autocomplete="off" autocapitalize="none">
+                    <button type="button" id="details-cli-run-btn" class="btn btn-secondary">Run</button>
+                </div>
+
+                <div class="section-subtitle">Quick Actions</div>
+                <div id="details-quick-actions-container" class="quick-commands-grid">
+                    <!-- Dynamic CLI template buttons render here -->
+                </div>
+
+                <div id="details-console-output" class="cli-console">
+                    <div class="cli-placeholder">Awaiting command execution...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button (FAB) -->
+    <button id="fab-connect-btn" class="fab-btn" aria-label="Connect to Node">
+        <svg class="icon" style="width: 22px; height: 22px;"><use xlink:href="#icon-plus"></use></svg>
+    </button>
+
+    <!-- Frosted Connect Sheet (Slide-up) -->
+    <div id="connect-overlay" class="overlay"></div>
+    <div id="connect-sheet" class="bottom-sheet">
+        <div class="bottom-sheet-handle"></div>
+        <div class="bottom-sheet-header">
+            <div class="bottom-sheet-title">Connect Link</div>
+            <button id="connect-sheet-close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="bottom-sheet-body">
+            <form id="quick-connect-form" class="bottom-sheet-form">
                 <div class="form-group row-group">
                     <div class="form-subgroup flex-2">
-                        <label for="link-target-node">Target Node #</label>
-                        <input type="number" id="link-target-node" placeholder="e.g. 1999" pattern="[0-9]*" inputmode="numeric" required>
+                        <label for="qc-target-node">Target Node #</label>
+                        <input type="number" id="qc-target-node" placeholder="e.g. 1999" pattern="[0-9]*" inputmode="numeric" required>
                     </div>
                     <div class="form-subgroup flex-1">
-                        <label for="link-perm">Permanent</label>
-                        <select id="link-perm">
+                        <label for="qc-link-perm">Permanent</label>
+                        <select id="qc-link-perm">
                             <option value="no">No</option>
                             <option value="yes">Yes</option>
                         </select>
                     </div>
                 </div>
-
-                <button type="submit" class="btn btn-primary btn-block">Execute Command</button>
+                <button type="submit" class="btn btn-primary btn-block">Connect Node</button>
             </form>
 
             <hr class="form-divider">
 
-            <!-- System / Custom Commands CLI Trigger -->
-            <div class="custom-cli-area">
-                <div class="section-subtitle">System Command Templates</div>
-                <div id="system-commands-container" class="quick-commands-grid">
-                    <!-- Quick action buttons populate here -->
-                </div>
-                <div class="custom-command-row">
-                    <input type="text" id="custom-cli-cmd" placeholder="Enter custom Asterisk command..." autocomplete="off" autocapitalize="none">
-                    <button id="custom-cli-exec-btn" class="btn btn-secondary">Run</button>
-                </div>
-            </div>
-
-            <!-- Command Output Display console -->
-            <div id="console-output" class="cli-console">
-                <div class="cli-placeholder">Awaiting execution...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Login Lockout Modal -->
-    <div id="login-modal" class="modal-container">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 class="modal-title">Sign In</h3>
-                <button id="login-close-btn" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="login-error" class="alert alert-danger" style="display: none;"></div>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="login-user">Username</label>
-                        <input type="text" id="login-user" required autocomplete="username">
-                    </div>
-                    <div class="form-group">
-                        <label for="login-pass">Password</label>
-                        <input type="password" id="login-pass" required autocomplete="current-password">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">Log In</button>
-                </form>
+            <div class="section-subtitle">Favorite Node Bookmarks</div>
+            <div class="favorites-grid" id="favorites-bookmarks-grid">
+                <!-- Bookmarked shortcuts populate here -->
             </div>
         </div>
     </div>

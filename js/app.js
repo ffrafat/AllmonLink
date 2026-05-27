@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nodes: [],              // All configured node IDs
     activeNodes: [],        // Nodes currently being monitored
     overrides: {},          // Custom node descriptions
-    uiConfig: {},           // Header titles, home URL, etc.
-    activeConsoleNode: null // Selected node in Link Manager console
+    activeDetailsNode: null, // Selected node in full details view
   };
 
   // --- SERVICE WORKER REGISTRATION ---
@@ -28,33 +27,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const el = {
     menuBtn: document.getElementById('menu-btn'),
     themeToggleBtn: document.getElementById('theme-toggle-btn'),
-    authBtn: document.getElementById('auth-status-btn'),
     sidebar: document.getElementById('sidebar'),
     sidebarOverlay: document.getElementById('sidebar-overlay'),
     sidebarClose: document.getElementById('sidebar-close-btn'),
+    sidebarNodeTitle: document.getElementById('sidebar-node-title'),
+    sidebarNodeDesc: document.getElementById('sidebar-node-description'),
+    sidebarAuthSection: document.getElementById('sidebar-auth-section'),
     navContainer: document.getElementById('node-navigation-list'),
     
     dashboard: document.getElementById('dashboard-view'),
     
-    consoleOverlay: document.getElementById('console-overlay'),
-    consolePanel: document.getElementById('console-panel'),
-    consoleClose: document.getElementById('console-close-btn'),
-    consoleTitle: document.getElementById('console-title'),
-    linkForm: document.getElementById('link-form'),
-    linkSourceNode: document.getElementById('link-node-source'),
-    linkTargetNode: document.getElementById('link-target-node'),
-    linkPerm: document.getElementById('link-perm'),
-    quickCmdsGrid: document.getElementById('system-commands-container'),
-    customCliCmd: document.getElementById('custom-cli-cmd'),
-    customCliBtn: document.getElementById('custom-cli-exec-btn'),
-    consoleOutput: document.getElementById('console-output'),
+    nodeDetailsView: document.getElementById('node-details-view'),
+    detailsBackBtn: document.getElementById('details-back-btn'),
+    detailsNodeId: document.getElementById('details-node-id'),
+    detailsNodeDesc: document.getElementById('details-node-desc'),
+    detailsNodeDir: document.getElementById('details-node-dir'),
+    detailsNodeTime: document.getElementById('details-node-time'),
+    detailsNodeRx: document.getElementById('details-node-rx'),
+    detailsDisconnectBtn: document.getElementById('details-disconnect-btn'),
+    detailsCliInput: document.getElementById('details-cli-input'),
+    detailsCliRunBtn: document.getElementById('details-cli-run-btn'),
+    detailsQuickActions: document.getElementById('details-quick-actions-container'),
+    detailsConsoleOutput: document.getElementById('details-console-output'),
     
-    loginModal: document.getElementById('login-modal'),
-    loginForm: document.getElementById('login-form'),
-    loginUser: document.getElementById('login-user'),
-    loginPass: document.getElementById('login-pass'),
-    loginClose: document.getElementById('login-close-btn'),
-    loginError: document.getElementById('login-error'),
+    fabConnectBtn: document.getElementById('fab-connect-btn'),
+    connectOverlay: document.getElementById('connect-overlay'),
+    connectSheet: document.getElementById('connect-sheet'),
+    connectSheetCloseBtn: document.getElementById('connect-sheet-close-btn'),
+    quickConnectForm: document.getElementById('quick-connect-form'),
+    qcTargetNode: document.getElementById('qc-target-node'),
+    qcLinkPerm: document.getElementById('qc-link-perm'),
+    favoritesBookmarksGrid: document.getElementById('favorites-bookmarks-grid'),
     
     toastContainer: document.getElementById('toast-container')
   };
@@ -81,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     
-    // Choose icon depending on type
     let iconId = '#icon-alert';
     if (type === 'success') iconId = '#icon-link';
     if (type === 'error') iconId = '#icon-unlink';
@@ -92,10 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     el.toastContainer.appendChild(toast);
     
-    // Animate in
     setTimeout(() => toast.classList.add('show'), 50);
     
-    // Remove after timeout
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 350);
@@ -106,11 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkForUpdates = () => {
     if (!navigator.onLine) return;
     
-    // Check after a 3s delay to let the initial load complete
     setTimeout(() => {
       fetch('https://raw.githubusercontent.com/ffrafat/AllmonLink/main/version.json')
         .then(res => {
-          if (!res.ok) throw new Error('Network error fetching version');
+          if (!res.ok) throw new Error('Network error');
           return res.json();
         })
         .then(data => {
@@ -118,11 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showUpdateNotification(data.version);
           }
         })
-        .catch(err => console.log('[Updates] Update check skipped:', err.message));
+        .catch(err => console.log('[Updates] Skip check:', err.message));
     }, 3000);
   };
 
-  // Show a clickable notification for updates
   const showUpdateNotification = (newVersion) => {
     const toast = document.createElement('div');
     toast.className = 'toast toast-info';
@@ -142,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => toast.classList.add('show'), 50);
   };
 
-  // Create a dynamic overlay modal for update details
   const openUpdateModal = (newVersion) => {
     const modal = document.createElement('div');
     modal.className = 'modal-container active';
@@ -169,9 +166,70 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.querySelector('#update-ok-btn').addEventListener('click', closeModal);
   };
 
+  // --- DRAWER AUTH COMPONENT ---
+
+  const renderSidebarAuth = () => {
+    if (state.isAuthenticated) {
+      el.sidebarAuthSection.innerHTML = `
+        <div class="sidebar-auth-title">Account</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background-color:var(--surface-subtle); border:1px solid var(--border-subtle); border-radius:10px;">
+          <span style="font-weight:600; font-size:0.9rem;">Logged In</span>
+          <button type="button" id="sidebar-logout-btn" class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem; border-radius:6px;">Log Out</button>
+        </div>
+      `;
+      document.getElementById('sidebar-logout-btn').addEventListener('click', handleSidebarLogout);
+    } else {
+      el.sidebarAuthSection.innerHTML = `
+        <div class="sidebar-auth-title">Sign In</div>
+        <form id="sidebar-login-form" style="display:flex; flex-direction:column; gap:8px;">
+          <div id="sidebar-login-error" class="alert alert-danger" style="display:none; padding:6px 8px; font-size:0.75rem;"></div>
+          <input type="text" id="sidebar-login-user" placeholder="Username" required style="padding:10px 12px; font-size:0.9rem; border-radius:8px;">
+          <input type="password" id="sidebar-login-pass" placeholder="Password" required style="padding:10px 12px; font-size:0.9rem; border-radius:8px;">
+          <button type="submit" class="btn btn-primary" style="padding:10px; font-size:0.9rem; border-radius:8px;">Log In</button>
+        </form>
+      `;
+      document.getElementById('sidebar-login-form').addEventListener('submit', handleSidebarLoginSubmit);
+    }
+  };
+
+  const handleSidebarLoginSubmit = (e) => {
+    e.preventDefault();
+    const loginError = document.getElementById('sidebar-login-error');
+    loginError.style.display = 'none';
+
+    const user = document.getElementById('sidebar-login-user').value.trim();
+    const pass = document.getElementById('sidebar-login-pass').value;
+
+    AllmonLinkAPI.login(user, pass).then(res => {
+      if (res.success) {
+        state.isAuthenticated = true;
+        renderSidebarAuth();
+        showToast(`Welcome back, ${user}!`, 'success');
+        
+        if (state.activeNodes.length > 0) {
+          selectActiveNode(state.activeNodes[0]);
+        }
+      } else {
+        loginError.innerText = res.message || 'Login failed.';
+        loginError.style.display = 'block';
+      }
+    });
+  };
+
+  const handleSidebarLogout = () => {
+    AllmonLinkAPI.logout().then(() => {
+      state.isAuthenticated = false;
+      renderSidebarAuth();
+      showToast('Logged out successfully.', 'info');
+      
+      if (state.activeNodes.length > 0) {
+        selectActiveNode(state.activeNodes[0]);
+      }
+    });
+  };
+
   // --- VIEW RENDERERS ---
 
-  // Renders the left sidebar nodes list
   const renderSidebarNavigation = () => {
     if (state.nodes.length === 0) {
       el.navContainer.innerHTML = '<div class="nav-loading">No nodes configured.</div>';
@@ -201,95 +259,114 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Selects which node to focus dashboard telemetry on
   const selectActiveNode = (nodeId) => {
-    // Save current active selection in localStorage
     localStorage.setItem('allmonlink_last_node', nodeId);
-    
-    // Clean up current WebSocket connections
     AllmonLinkTelemetry.disconnectAll();
     el.dashboard.innerHTML = '';
     
     state.activeNodes = [nodeId];
     renderSidebarNavigation();
     
-    // Render loading indicator inside dashboard
+    // Update sidebar top node info block
+    const customDesc = state.overrides[nodeId] || 'AllStarLink Node Monitor';
+    el.sidebarNodeTitle.innerText = `Node ${nodeId}`;
+    el.sidebarNodeDesc.innerText = customDesc;
+    
     const loader = document.createElement('div');
     loader.className = 'initial-loader';
     loader.innerHTML = `
       <div class="spinner"></div>
-      <p>Opening socket stream for Node ${nodeId}...</p>
+      <p>Opening live telemetry stream...</p>
     `;
     el.dashboard.appendChild(loader);
 
-    // Fetch config to locate ws port and establish socket connection
     AllmonLinkAPI.getNodeConfig(nodeId).then(res => {
       if (res.success && res.data && res.data.statport) {
         loader.remove();
         initTelemetryStream(nodeId, res.data.statport);
       } else {
         loader.innerHTML = `
-          <svg class="icon" style="width:36px;height:36px;color:var(--danger);"><use xlink:href="#icon-alert"></use></svg>
-          <p style="margin-top:12px;color:var(--danger)">Node config unavailable. Server offline?</p>
+          <svg class="icon" style="width:32px;height:32px;color:var(--danger);"><use xlink:href="#icon-alert"></use></svg>
+          <p style="margin-top:12px;color:var(--danger)">Node config unavailable. Off-line?</p>
         `;
-        showToast(`Could not fetch WebSocket config for Node ${nodeId}`, 'error');
+        showToast(`Could not fetch WebSocket port for Node ${nodeId}`, 'error');
       }
     });
   };
 
-  // Initiates live telemetry
   const initTelemetryStream = (nodeId, wsPort) => {
     AllmonLinkTelemetry.connect(
       nodeId,
       wsPort,
-      // On Live Update: Update node layout
       (id, data, ptt) => {
-        renderNodeCard(id, data, ptt);
+        renderHomepageLayout(id, data, ptt);
       },
-      // On Connection Error: Display card in warn state
       (id, errorMsg) => {
         renderErrorNodeCard(id, errorMsg);
       }
     );
   };
 
-  // Render/Update dynamic node card in the main view
-  const renderNodeCard = (nodeId, data, ptt) => {
-    let card = document.getElementById(`card-${nodeId}`);
-    
-    // Preserve the current quick input value if the card already exists
-    let preservedInputValue = '';
-    if (card) {
-      const existingInput = card.querySelector('.quick-node-input');
-      if (existingInput) {
-        preservedInputValue = existingInput.value;
-      }
-    }
-    
-    if (!card) {
-      card = document.createElement('div');
-      card.id = `card-${nodeId}`;
-      card.className = 'node-card';
-      el.dashboard.innerHTML = ''; // Remove loader
-      el.dashboard.appendChild(card);
-    }
+  // Dynamic Host Card + Live SVG Animation & Compact Connected Cards grid
+  const renderHomepageLayout = (nodeId, data, ptt) => {
+    el.dashboard.innerHTML = ''; // Keep homepage refreshed on updates
 
     const desc = state.overrides[nodeId] || data.DESC || 'No node details configured';
     const connCount = data.CONNS ? Object.keys(data.CONNS).length : 0;
     const uptimeStr = formatSeconds(data.UPTIME);
 
-    // Build PTT UI ring indicator rules
+    // Build PTT UI ring status & wave classes
     let ringClass = 'idle';
-    if (ptt.mode === 'tx-local') ringClass = 'tx';
-    if (ptt.mode === 'tx-network') ringClass = 'network';
-    if (ptt.mode === 'tx-telemetry') ringClass = 'network';
+    let waveAnimateClass = 'animate-idle';
+    if (ptt.mode === 'tx-local') {
+      ringClass = 'tx';
+      waveAnimateClass = 'animate-tx';
+    } else if (ptt.mode === 'tx-network' || ptt.mode === 'tx-telemetry') {
+      ringClass = 'network';
+      waveAnimateClass = 'animate-network';
+    }
     
     const pttInfo = ptt.txDurationSec > 0 ? `${ptt.label} (${ptt.txDurationSec}s)` : ptt.label;
 
-    // Render connection rows
-    let connectionsHTML = '';
+    // 1. Host Node card (First Primary Card)
+    const hostCard = document.createElement('div');
+    hostCard.className = 'node-card host-node-card';
+    hostCard.innerHTML = `
+      <div class="node-card-header" style="border: none;">
+        <div class="node-title-area">
+          <div class="node-card-title">
+            <span class="status-ring ${ringClass}" title="${pttInfo}"></span>
+            Host Node ${nodeId}
+          </div>
+          <div class="node-card-desc">${desc}</div>
+          <div class="node-meta-grid">
+            <span class="meta-pill">Links: ${connCount}</span>
+            <span class="meta-pill">Uptime: ${uptimeStr}</span>
+            <span class="meta-pill">${pttInfo}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Live Vector Waveform Visualizer -->
+      <div class="live-activity-wave">
+        <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="waveform-svg ${waveAnimateClass}">
+          <path class="wave-path" d="M0,15 Q12.5,5 25,15 T50,15 T75,15 T100,15 L100,30 L0,30 Z" fill="rgba(0,114,245,0.02)" stroke="currentColor" stroke-width="0.8"></path>
+          <path class="wave-path" d="M0,15 Q12.5,22 25,15 T50,15 T75,15 T100,15" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.8"></path>
+          <path class="wave-path" d="M0,15 Q12.5,15 25,15 T50,15 T75,15 T100,15" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.5"></path>
+        </svg>
+      </div>
+    `;
+    el.dashboard.appendChild(hostCard);
+
+    // 2. Connected Nodes list header
+    const listHeader = document.createElement('div');
+    listHeader.className = 'section-label';
+    listHeader.style.margin = '14px 4px 6px 4px';
+    listHeader.innerText = 'Connected Links';
+    el.dashboard.appendChild(listHeader);
+
+    // 3. Compact cards list
     if (data.CONNS && connCount > 0) {
-      // Sort connections: active keyed first, otherwise ascending
       const sortedKeys = Object.keys(data.CONNS).sort((a, b) => {
         const aKeyed = (data.CONNKEYED && a === data.CONNKEYEDNODE) ? 1 : 0;
         const bKeyed = (data.CONNKEYED && b === data.CONNKEYEDNODE) ? 1 : 0;
@@ -301,190 +378,59 @@ document.addEventListener('DOMContentLoaded', () => {
         const isKeyed = (data.CONNKEYED && connId === data.CONNKEYEDNODE);
         const isConnecting = c.CSTATE === 'CONNECTING';
         
-        let rowClass = '';
-        if (isKeyed) rowClass = 'conn-keyed';
-        if (isConnecting) rowClass = 'conn-connecting';
+        let cardClass = '';
+        if (isKeyed) cardClass = 'conn-keyed';
+        if (isConnecting) cardClass = 'conn-connecting';
         
         const dirBadge = c.DIR === 'IN' ? '<span class="direction-badge direction-in">IN</span>' : '<span class="direction-badge direction-out">OUT</span>';
         const lastRx = isKeyed ? 'Active Now' : (c.SSU > -1 ? formatSeconds(c.SSU) + ' ago' : 'Never');
 
-        const unlinkBtn = state.isAuthenticated ? `
-          <button class="btn-unlink" data-unlink="${connId}" aria-label="Disconnect link ${connId}">
-            <svg class="icon"><use xlink:href="#icon-unlink"></use></svg>
-          </button>
-        ` : '';
-
-        connectionsHTML += `
-          <div class="conn-item-row ${rowClass}" data-node-shortcut="${connId}">
-            <div class="conn-info-col">
-              <div class="conn-node-name">Node ${connId} ${dirBadge}</div>
-              <div class="conn-desc">${c.DESC || 'Private / Unavailable'}</div>
-              <div class="conn-metrics">
-                <span>Last RX: ${lastRx}</span>
+        const compactCard = document.createElement('div');
+        compactCard.className = `node-card connected-node-card ${cardClass}`;
+        compactCard.style.marginBottom = '6px';
+        compactCard.innerHTML = `
+          <div class="node-card-header" style="border: none; padding: 12px 14px;">
+            <div class="node-title-area">
+              <div class="node-card-title" style="font-size: 1rem; gap: 8px;">
+                Node ${connId} ${dirBadge}
+              </div>
+              <div class="node-card-desc" style="font-size: 0.75rem;">${c.DESC || 'Private / Unavailable'}</div>
+              <div class="node-meta-grid" style="font-size: 0.65rem;">
                 <span>Active: ${c.CTIME}</span>
+                <span>Last RX: ${lastRx}</span>
               </div>
             </div>
-            ${unlinkBtn}
+            <div class="header-controls">
+              <button type="button" class="btn-icon-circle open-details-btn" data-target-node="${connId}" aria-label="Open Node Details">
+                <svg class="icon" style="width: 14px; height: 14px;"><use xlink:href="#icon-chevron-right"></use></svg>
+              </button>
+            </div>
           </div>
         `;
+
+        // Bind Arrow details navigation
+        compactCard.querySelector('.open-details-btn').addEventListener('click', () => {
+          openNodeDetailsPage(nodeId, connId, c, lastRx);
+        });
+
+        el.dashboard.appendChild(compactCard);
       });
     } else {
-      connectionsHTML = '<div class="empty-conns-row">No active links (Repeater Only)</div>';
+      const emptyCard = document.createElement('div');
+      emptyCard.className = 'empty-conns-row';
+      emptyCard.innerText = 'No active links (Repeater Only)';
+      el.dashboard.appendChild(emptyCard);
     }
-
-    const commandConsoleBtn = state.isAuthenticated ? `
-      <button class="btn-icon-circle" id="open-console-${nodeId}" aria-label="Open Console Control">
-        <svg class="icon"><use xlink:href="#icon-settings"></use></svg>
-      </button>
-    ` : `
-      <button class="btn-icon-circle" id="lock-console-${nodeId}" aria-label="Login Required">
-        <svg class="icon" style="color:var(--text-secondary)"><use xlink:href="#icon-user"></use></svg>
-      </button>
-    `;
-
-    const quickControlHTML = state.isAuthenticated ? `
-      <div class="card-quick-control">
-        <input type="number" class="quick-node-input" placeholder="Quick Link Node #" pattern="[0-9]*" inputmode="numeric">
-        <div class="quick-control-actions">
-          <button type="button" class="btn btn-quick-connect">Connect</button>
-          <button type="button" class="btn btn-quick-disconnect">Disconnect</button>
-        </div>
-      </div>
-    ` : '';
-
-    card.innerHTML = `
-      <div class="node-card-header">
-        <div class="node-title-area">
-          <div class="node-card-title">
-            <span class="status-ring ${ringClass}" title="${pttInfo}"></span>
-            Node ${nodeId}
-          </div>
-          <div class="node-card-desc">${desc}</div>
-          <div class="node-meta-grid">
-            <span class="meta-pill">Links: ${connCount}</span>
-            <span class="meta-pill">Uptime: ${uptimeStr}</span>
-            <span class="meta-pill">${pttInfo}</span>
-          </div>
-        </div>
-        <div class="header-controls">
-          ${commandConsoleBtn}
-        </div>
-      </div>
-      
-      <div class="connections-section">
-        <div class="section-label">Active Link Connections</div>
-        <div class="connections-list">
-          ${connectionsHTML}
-        </div>
-      </div>
-
-      ${quickControlHTML}
-    `;
-
-    // Restore preserved input value if applicable
-    if (state.isAuthenticated && preservedInputValue) {
-      const quickInput = card.querySelector('.quick-node-input');
-      if (quickInput) {
-        quickInput.value = preservedInputValue;
-      }
-    }
-
-    // Bind dynamic control triggers on card header settings buttons
-    const ctrlBtn = card.querySelector('.btn-icon-circle');
-    if (ctrlBtn) {
-      ctrlBtn.addEventListener('click', () => {
-        if (state.isAuthenticated) {
-          openCommandConsole(nodeId);
-        } else {
-          toggleLoginModal(true);
-        }
-      });
-    }
-
-    // Bind link console quick-selection on rows click
-    card.querySelectorAll('.conn-item-row').forEach(row => {
-      row.addEventListener('click', (e) => {
-        // Prevent trigger if clicking unlink button specifically
-        if (e.target.closest('.btn-unlink')) return;
-        
-        const targetNodeId = row.dataset.nodeShortcut;
-        if (state.isAuthenticated) {
-          const quickInput = card.querySelector('.quick-node-input');
-          if (quickInput) {
-            quickInput.value = targetNodeId;
-            quickInput.focus();
-            showToast(`Node ${targetNodeId} selected for quick control`, 'info');
-          } else {
-            el.linkTargetNode.value = targetNodeId;
-            openCommandConsole(nodeId);
-            showToast(`Target Node ${targetNodeId} selected`, 'info');
-          }
-        } else {
-          // Pre-populate if they login later
-          el.linkTargetNode.value = targetNodeId;
-          showToast('Sign in to manage links.', 'info');
-        }
-      });
-    });
-
-    // Bind quick unlink operations
-    card.querySelectorAll('.btn-unlink').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const unlinkTarget = btn.dataset.unlink;
-        executeDisconnectCommand(nodeId, unlinkTarget);
-      });
-    });
-
-    // Bind card-level quick connect/disconnect operations
-    if (state.isAuthenticated) {
-      const quickInput = card.querySelector('.quick-node-input');
-      const qConnectBtn = card.querySelector('.btn-quick-connect');
-      const qDisconnectBtn = card.querySelector('.btn-quick-disconnect');
-
-      if (qConnectBtn && qDisconnectBtn && quickInput) {
-        qConnectBtn.addEventListener('click', () => {
-          const targetVal = quickInput.value.trim();
-          if (!targetVal) {
-            showToast('Please enter a target node number.', 'error');
-            return;
-          }
-          showToast(`Connecting Node ${targetVal}...`, 'info');
-          const cmdStr = `rpt cmd ${nodeId} ilink 3 ${targetVal}`;
-          AllmonLinkAPI.executeCommand(nodeId, cmdStr).then(res => {
-            if (res.success) {
-              showToast(`Node ${targetVal} connection request sent.`, 'success');
-              quickInput.value = '';
-            } else {
-              showToast(res.message || 'Connection request failed.', 'error');
-            }
-          });
-        });
-
-        qDisconnectBtn.addEventListener('click', () => {
-          const targetVal = quickInput.value.trim();
-          if (!targetVal) {
-            showToast('Please enter a target node number.', 'error');
-            return;
-          }
-          executeDisconnectCommand(nodeId, targetVal);
-          quickInput.value = '';
-        });
-      }
-    }
+    
+    // Refresh FAB favorites just in case
+    renderFavoritesBookmarks(nodeId);
   };
 
-  // Render a node card in an error/disconnect state
   const renderErrorNodeCard = (nodeId, errorMessage) => {
-    let card = document.getElementById(`card-${nodeId}`);
-    if (!card) {
-      card = document.createElement('div');
-      card.id = `card-${nodeId}`;
-      card.className = 'node-card';
-      el.dashboard.innerHTML = '';
-      el.dashboard.appendChild(card);
-    }
-
+    el.dashboard.innerHTML = '';
+    const card = document.createElement('div');
+    card.id = `card-${nodeId}`;
+    card.className = 'node-card';
     card.innerHTML = `
       <div class="node-card-header">
         <div class="node-title-area">
@@ -492,38 +438,196 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="node-card-desc">Disconnect Alert</div>
         </div>
       </div>
-      <div class="ptt-status-banner ptt-idle" style="background-color:var(--danger-glow);color:var(--danger)">
-        Unreachable Socket
-      </div>
       <div class="connections-section" style="text-align:center;padding:32px 16px;">
         <svg class="icon" style="width:32px;height:32px;color:var(--text-secondary);stroke:currentColor;fill:none;"><use xlink:href="#icon-alert"></use></svg>
         <p style="margin-top:12px;font-size:0.9rem;color:var(--text-secondary);">${errorMessage}</p>
       </div>
     `;
+    el.dashboard.appendChild(card);
   };
 
-  // Executes quick disconnect command when clicking inline unlink button
-  const executeDisconnectCommand = (nodeId, targetNode) => {
-    showToast(`Disconnecting Node ${targetNode}...`, 'info');
+  // --- iOS-STYLE NODE DETAILS PAGE OVERLAY ---
+
+  const openNodeDetailsPage = (hostNodeId, targetNodeId, connData, lastRxStr) => {
+    state.activeDetailsNode = targetNodeId;
+    el.detailsNodeId.innerText = `Node ${targetNodeId}`;
+    el.detailsNodeDesc.innerText = connData.DESC || 'No details available';
+    el.detailsNodeDir.innerText = connData.DIR || '---';
+    el.detailsNodeTime.innerText = connData.CTIME || '00:00:00';
+    el.detailsNodeRx.innerText = lastRxStr;
     
-    const cmdStr1 = `rpt cmd ${nodeId} ilink 1 ${targetNode}`;
-    const cmdStr11 = `rpt cmd ${nodeId} ilink 11 ${targetNode}`;
+    // Clear terminal console output
+    el.detailsConsoleOutput.innerHTML = '<div class="cli-placeholder">Awaiting command execution...</div>';
+    el.detailsCliInput.value = '';
     
-    Promise.all([
-      AllmonLinkAPI.executeCommand(nodeId, cmdStr1),
-      AllmonLinkAPI.executeCommand(nodeId, cmdStr11)
-    ]).then(([res1, res11]) => {
-      if (res1.success || res11.success) {
-        showToast(`Node ${targetNode} disconnected successfully.`, 'success');
-      } else {
-        showToast(res1.message || res11.message || 'Disconnect request failed.', 'error');
-      }
-    }).catch(err => {
-      showToast(err.message || 'Disconnect request failed.', 'error');
+    // Load readymade preset buttons
+    loadDetailsQuickCommands(hostNodeId, targetNodeId);
+    
+    // Set up disconnect trigger
+    el.detailsDisconnectBtn.onclick = () => {
+      handleDetailsDisconnect(hostNodeId, targetNodeId);
+    };
+
+    // Set up custom CLI runs
+    el.detailsCliRunBtn.onclick = () => {
+      runDetailsCliCommand(hostNodeId);
+    };
+    
+    // Slide page in
+    el.nodeDetailsView.classList.add('active');
+  };
+
+  const closeNodeDetailsPage = () => {
+    el.nodeDetailsView.classList.remove('active');
+    state.activeDetailsNode = null;
+  };
+
+  const loadDetailsQuickCommands = (hostNodeId, targetNodeId) => {
+    el.detailsQuickActions.innerHTML = '';
+    
+    // Direct execution buttons mapping templates
+    const presets = [
+      { label: 'Uptime', cmd: 'core show uptime' },
+      { label: 'Registry', cmd: 'iax2 show registry' },
+      { label: 'Channels', cmd: 'iax2 show channels' },
+      { label: 'Node Status', cmd: `rpt stats ${hostNodeId}` },
+      { label: 'Link Status', cmd: `rpt lstats ${hostNodeId}` },
+      { label: 'Test Tone', cmd: `rpt cmd ${hostNodeId} cop 4 1` }
+    ];
+
+    presets.forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-quick-cmd';
+      btn.innerText = p.label;
+      btn.addEventListener('click', () => {
+        executeDetailsCliCommand(hostNodeId, p.cmd);
+      });
+      el.detailsQuickActions.appendChild(btn);
     });
   };
 
-  // --- UI DRAWER / BOTTOM SHEET / CONTROLS TOGGLES ---
+  const executeDetailsCliCommand = (hostNodeId, cmdStr) => {
+    el.detailsConsoleOutput.innerHTML = '<div class="spinner" style="margin: 32px auto;"></div>';
+
+    AllmonLinkAPI.executeCommand(hostNodeId, cmdStr).then(res => {
+      if (res.success) {
+        let out = res.data;
+        try { out = atob(res.data); } catch(e) {}
+        el.detailsConsoleOutput.innerHTML = `<div>Command Executed successfully.</div><pre style="margin-top:8px;">${out}</pre>`;
+        showToast('Command executed successfully.', 'success');
+      } else {
+        el.detailsConsoleOutput.innerHTML = `<div style="color:var(--danger);">Error: ${res.message}</div>`;
+        showToast(res.message || 'Command failed.', 'error');
+      }
+    });
+  };
+
+  const runDetailsCliCommand = (hostNodeId) => {
+    const cmdStr = el.detailsCliInput.value.trim();
+    if (!cmdStr) return;
+    executeDetailsCliCommand(hostNodeId, cmdStr);
+  };
+
+  const handleDetailsDisconnect = (hostNodeId, targetNodeId) => {
+    showToast(`Disconnecting Node ${targetNodeId}...`, 'info');
+    
+    const cmdStr1 = `rpt cmd ${hostNodeId} ilink 1 ${targetNodeId}`;
+    const cmdStr11 = `rpt cmd ${hostNodeId} ilink 11 ${targetNodeId}`;
+    
+    Promise.all([
+      AllmonLinkAPI.executeCommand(hostNodeId, cmdStr1),
+      AllmonLinkAPI.executeCommand(hostNodeId, cmdStr11)
+    ]).then(([res1, res11]) => {
+      if (res1.success || res11.success) {
+        showToast(`Node ${targetNodeId} disconnected successfully.`, 'success');
+        closeNodeDetailsPage();
+      } else {
+        showToast(res1.message || res11.message || 'Disconnect failed.', 'error');
+      }
+    }).catch(err => {
+      showToast(err.message || 'Disconnect failed.', 'error');
+    });
+  };
+
+  // --- FLOATING ACTION BUTTON (FAB) & CONNECT SHEET ---
+
+  const toggleConnectSheet = (forceState) => {
+    const isShowing = forceState !== undefined ? forceState : !el.connectSheet.classList.contains('active');
+    
+    if (isShowing) {
+      el.connectSheet.classList.add('active');
+      el.connectOverlay.classList.add('active');
+      el.qcTargetNode.focus();
+    } else {
+      el.connectSheet.classList.remove('active');
+      el.connectOverlay.classList.remove('active');
+      el.quickConnectForm.reset();
+    }
+  };
+
+  const handleQuickConnectSubmit = (e) => {
+    e.preventDefault();
+    const hostNodeId = state.activeNodes[0];
+    const targetNode = el.qcTargetNode.value.trim();
+    const isPerm = el.qcLinkPerm.value === 'yes';
+    
+    if (!hostNodeId || !targetNode) return;
+    
+    // Command code: Connect is 3 (non-permanent) or 13 (permanent)
+    const commandVal = isPerm ? 13 : 3;
+    const cmdStr = `rpt cmd ${hostNodeId} ilink ${commandVal} ${targetNode}`;
+    
+    showToast(`Connecting Node ${targetNode}...`, 'info');
+    toggleConnectSheet(false);
+    
+    AllmonLinkAPI.executeCommand(hostNodeId, cmdStr).then(res => {
+      if (res.success) {
+        showToast(`Node ${targetNode} connection request sent.`, 'success');
+      } else {
+        showToast(res.message || 'Connection request failed.', 'error');
+      }
+    });
+  };
+
+  const renderFavoritesBookmarks = (hostNodeId) => {
+    el.favoritesBookmarksGrid.innerHTML = '';
+    
+    // Default favorites bookmarked nodes list
+    const bookmarks = [
+      { node: '1999', label: 'Test Node' },
+      { node: '500', label: 'Hub 500' },
+      { node: '40000', label: 'EchoLink' }
+    ];
+
+    bookmarks.forEach(b => {
+      const badge = document.createElement('div');
+      badge.className = 'fav-badge-btn';
+      badge.innerHTML = `
+        <svg class="icon"><use xlink:href="#icon-star"></use></svg>
+        <span class="fav-node-num">${b.node}</span>
+        <span class="fav-node-label">${b.label}</span>
+      `;
+      
+      badge.addEventListener('click', () => {
+        showToast(`Connecting favorite Node ${b.node}...`, 'info');
+        toggleConnectSheet(false);
+        const cmdStr = `rpt cmd ${hostNodeId} ilink 3 ${b.node}`;
+        
+        AllmonLinkAPI.executeCommand(hostNodeId, cmdStr).then(res => {
+          if (res.success) {
+            showToast(`Favorite Node ${b.node} connection sent.`, 'success');
+          } else {
+            showToast(res.message || 'Connection failed.', 'error');
+          }
+        });
+      });
+      
+      el.favoritesBookmarksGrid.appendChild(badge);
+    });
+  };
+
+  // --- GENERAL DRAWER/SIDEBAR DRAWER ACTION TOGGLES ---
 
   const toggleSidebar = (forceState) => {
     const isShowing = forceState !== undefined ? forceState : !el.sidebar.classList.contains('active');
@@ -537,194 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const toggleLoginModal = (forceState) => {
-    const isShowing = forceState !== undefined ? forceState : !el.loginModal.classList.contains('active');
-    
-    if (isShowing) {
-      el.loginModal.classList.add('active');
-      el.loginUser.focus();
-    } else {
-      el.loginModal.classList.remove('active');
-      el.loginError.style.display = 'none';
-      el.loginForm.reset();
-    }
-  };
-
-  const toggleConsolePanel = (forceState) => {
-    const isShowing = forceState !== undefined ? forceState : !el.consolePanel.classList.contains('active');
-    
-    if (isShowing) {
-      el.consolePanel.classList.add('active');
-      el.consoleOverlay.classList.add('active');
-    } else {
-      el.consolePanel.classList.remove('active');
-      el.consoleOverlay.classList.remove('active');
-      state.activeConsoleNode = null;
-    }
-  };
-
-  // Opens command slide-up bottom sheet
-  const openCommandConsole = (nodeId) => {
-    state.activeConsoleNode = nodeId;
-    el.linkSourceNode.value = nodeId;
-    el.consoleTitle.innerText = `Control Console - Node ${nodeId}`;
-    
-    // Clear terminal console
-    el.consoleOutput.innerHTML = '<div class="cli-placeholder">Awaiting execution...</div>';
-    
-    // Build/Load dynamic CLI commands list templates
-    loadSystemCommands(nodeId);
-    toggleConsolePanel(true);
-  };
-
-  // Pulls system command templates from configs and renders them as quick keys
-  const loadSystemCommands = (nodeId) => {
-    el.quickCmdsGrid.innerHTML = '';
-    
-    AllmonLinkAPI.getSystemCommands().then(res => {
-      if (res.success && res.data) {
-        const cmdMap = res.data;
-        
-        Object.keys(cmdMap).forEach(key => {
-          // Exclude voter template commands if this is normal node card
-          if (key.startsWith('voter')) return;
-          
-          const cleanCmd = key.replace(/@/g, nodeId).replace(/'/g, '');
-          const label = cmdMap[key];
-          
-          const cmdBtn = document.createElement('button');
-          cmdBtn.className = 'btn-quick-cmd';
-          cmdBtn.innerText = label;
-          cmdBtn.addEventListener('click', () => {
-            el.customCliCmd.value = cleanCmd;
-            runCliCommand();
-          });
-          
-          el.quickCmdsGrid.appendChild(cmdBtn);
-        });
-      }
-    });
-  };
-
-  // --- ACTIONS LOGIC ---
-
-  // Performs PWA login and updates state
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    el.loginError.style.display = 'none';
-
-    const user = el.loginUser.value.trim();
-    const pass = el.loginPass.value;
-
-    AllmonLinkAPI.login(user, pass).then(res => {
-      if (res.success) {
-        state.isAuthenticated = true;
-        updateAuthHeaderState(true);
-        toggleLoginModal(false);
-        showToast(`Welcome back, ${user}!`, 'success');
-        
-        // Refresh active dashboard view cards
-        if (state.activeNodes.length > 0) {
-          selectActiveNode(state.activeNodes[0]);
-        }
-      } else {
-        el.loginError.innerText = res.message || 'Login failed. Verify credentials.';
-        el.loginError.style.display = 'block';
-      }
-    });
-  };
-
-  const handleLogout = () => {
-    AllmonLinkAPI.logout().then(() => {
-      state.isAuthenticated = false;
-      updateAuthHeaderState(false);
-      showToast('Logged out successfully.', 'info');
-      if (state.activeNodes.length > 0) {
-        selectActiveNode(state.activeNodes[0]);
-      }
-    });
-  };
-
-  // Formats auth buttons inside header bar
-  const updateAuthHeaderState = (loggedIn) => {
-    if (loggedIn) {
-      el.authBtn.innerHTML = '<svg class="icon" style="color:var(--danger)"><use xlink:href="#icon-logout"></use></svg>';
-      el.authBtn.onclick = handleLogout;
-      el.authBtn.ariaLabel = 'Sign Out';
-    } else {
-      el.authBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-login"></use></svg>';
-      el.authBtn.onclick = () => toggleLoginModal(true);
-      el.authBtn.ariaLabel = 'Sign In';
-    }
-  };
-
-  // Bottom Sheet segment connect/disconnect form submission
-  const handleLinkSubmit = (e) => {
-    e.preventDefault();
-    const nodeId = el.linkSourceNode.value;
-    const targetNode = el.linkTargetNode.value.trim();
-    const isPerm = el.linkPerm.value === 'yes';
-    
-    // Read segmented control radio value
-    const selectedRadio = el.linkForm.querySelector('input[name="link-cmd"]:checked');
-    if (!selectedRadio) return;
-    
-    let commandVal = Number(selectedRadio.value);
-    
-    if (!targetNode) {
-      showToast('Please enter a target node number.', 'error');
-      return;
-    }
-
-    // Adjust command code if permanent link requested (+10)
-    if (isPerm && (commandVal === 1 || commandVal === 2 || commandVal === 3)) {
-      commandVal += 10;
-    }
-
-    const cmdStr = `rpt cmd ${nodeId} ilink ${commandVal} ${targetNode}`;
-    
-    el.consoleOutput.innerHTML = '<div class="spinner" style="margin: 32px auto;"></div>';
-
-    AllmonLinkAPI.executeCommand(nodeId, cmdStr).then(res => {
-      if (res.success) {
-        let terminalOutput = res.data;
-        // Decode base64 if needed
-        try { terminalOutput = atob(res.data); } catch(err) {}
-        
-        el.consoleOutput.innerHTML = `<div>Command Executed Successfully.</div><pre style="margin-top:8px">${terminalOutput}</pre>`;
-        showToast('Link command executed.', 'success');
-      } else {
-        el.consoleOutput.innerHTML = `<div style="color:var(--danger)">Error: ${res.message}</div>`;
-        showToast('Link command failed.', 'error');
-      }
-    });
-  };
-
-  // Executes arbitrary Asterisk command from Console input row
-  const runCliCommand = () => {
-    const cmdStr = el.customCliCmd.value.trim();
-    const nodeId = state.activeConsoleNode;
-    
-    if (!cmdStr) return;
-    if (!nodeId) return;
-
-    el.consoleOutput.innerHTML = '<div class="spinner" style="margin: 32px auto;"></div>';
-
-    AllmonLinkAPI.executeCommand(nodeId, cmdStr).then(res => {
-      if (res.success) {
-        let terminalOutput = res.data;
-        // Decode base64 if needed
-        try { terminalOutput = atob(res.data); } catch(err) {}
-        
-        el.consoleOutput.innerHTML = `<pre>${terminalOutput}</pre>`;
-      } else {
-        el.consoleOutput.innerHTML = `<div style="color:var(--danger)">Error: ${res.message}</div>`;
-        showToast('Command failed.', 'error');
-      }
-    });
-  };
-
-  // --- EVENTS BINDING ---
+  // --- GENERAL EVENT BINDINGS ---
   
   el.themeToggleBtn.addEventListener('click', () => {
     const isLight = document.body.classList.toggle('theme-light');
@@ -743,21 +660,19 @@ document.addEventListener('DOMContentLoaded', () => {
   el.sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
   el.sidebarClose.addEventListener('click', () => toggleSidebar(false));
   
-  el.loginClose.addEventListener('click', () => toggleLoginModal(false));
-  el.loginForm.addEventListener('submit', handleLoginSubmit);
+  el.detailsBackBtn.addEventListener('click', closeNodeDetailsPage);
   
-  el.consoleClose.addEventListener('click', () => toggleConsolePanel(false));
-  el.consoleOverlay.addEventListener('click', () => toggleConsolePanel(false));
-  
-  el.linkForm.addEventListener('submit', handleLinkSubmit);
-  
-  el.customCliBtn.addEventListener('click', runCliCommand);
-  el.customCliCmd.addEventListener('keypress', (e) => {
+  el.detailsCliInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      runCliCommand();
+      runDetailsCliCommand(state.activeNodes[0]);
     }
   });
+
+  el.fabConnectBtn.addEventListener('click', () => toggleConnectSheet(true));
+  el.connectOverlay.addEventListener('click', () => toggleConnectSheet(false));
+  el.connectSheetCloseBtn.addEventListener('click', () => toggleConnectSheet(false));
+  el.quickConnectForm.addEventListener('submit', handleQuickConnectSubmit);
 
   // --- INITIALIZATION PIPELINE ---
 
@@ -772,18 +687,16 @@ document.addEventListener('DOMContentLoaded', () => {
       el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-sun"></use></svg>';
     }
 
-    // Check for updates against remote GitHub repo
     checkForUpdates();
 
     // 1. Check current login authentication state
     AllmonLinkAPI.checkAuth().then(res => {
       if (res.success && res.data === 'Logged In') {
         state.isAuthenticated = true;
-        updateAuthHeaderState(true);
       } else {
         state.isAuthenticated = false;
-        updateAuthHeaderState(false);
       }
+      renderSidebarAuth();
     });
 
     // 2. Fetch overrides
@@ -799,7 +712,6 @@ document.addEventListener('DOMContentLoaded', () => {
         state.nodes = res.data;
         renderSidebarNavigation();
         
-        // Load the last active node if stored, otherwise default to first in list
         const lastNode = Number(localStorage.getItem('allmonlink_last_node'));
         const defaultNode = state.nodes.includes(lastNode) ? lastNode : state.nodes[0];
         
