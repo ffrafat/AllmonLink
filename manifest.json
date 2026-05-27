@@ -1,6 +1,6 @@
 {
-  "name": "AllmonLink Dashboard",
-  "short_name": "AllmonLink",
+  "name": "AllmonTouch Dashboard",
+  "short_name": "AllmonTouch",
   "description": "Mobile Dashboard for AllStarLink Monitoring and Node Management",
   "start_url": "./index.html",
   "display": "standalone",

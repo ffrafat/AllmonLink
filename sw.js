@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allmonlink-v1';
+const CACHE_NAME = 'allmontouch-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',

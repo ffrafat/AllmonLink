@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# AllmonLink Installer Script
+# AllmonTouch Installer Script
 # Installs the mobile web interface for Allmon3 on AllStarLink nodes.
 # Runs on Debian 12/13 (ASL3 default).
 #
@@ -8,9 +8,9 @@
 set -e
 
 # Configuration
-INSTALL_DIR="/usr/share/allmonlink"
+INSTALL_DIR="/usr/share/allmontouch"
 GITHUB_USER="ffrafat"          # Replace with your GitHub username
-GITHUB_REPO="AllmonLink"       # Replace with your repository name
+GITHUB_REPO="AllmonLink"       # Replace with your repository name (pointing to the original github repository)
 BRANCH="main"                  # Target branch for download
 
 # Terminal colors
@@ -21,7 +21,7 @@ BLUE='\033[0;34m'
 NC='\033[0;29m' # No Color
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${GREEN}             AllmonLink PWA Installer              ${NC}"
+echo -e "${GREEN}             AllmonTouch PWA Installer             ${NC}"
 echo -e "${BLUE}===================================================${NC}"
 
 # 1. Verify root execution
@@ -56,7 +56,7 @@ else
     fi
 
     # Fetch zip file from GitHub
-    TEMP_ZIP="/tmp/allmonlink.zip"
+    TEMP_ZIP="/tmp/allmontouch.zip"
     ZIP_URL="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/archive/refs/heads/${BRANCH}.zip"
     
     echo -e "${BLUE}[*] Downloading from GitHub: ${ZIP_URL}...${NC}"
@@ -66,7 +66,7 @@ else
       fi
 
     echo -e "${BLUE}[*] Extracting files...${NC}"
-    TEMP_EXTRACT="/tmp/allmonlink-extract"
+    TEMP_EXTRACT="/tmp/allmontouch-extract"
     rm -rf "${TEMP_EXTRACT}"
     mkdir -p "${TEMP_EXTRACT}"
     unzip -q "${TEMP_ZIP}" -d "${TEMP_EXTRACT}"
@@ -109,22 +109,22 @@ if [ "$NGINX_RUNNING" = true ]; then
     echo -e "${GREEN}[+] Nginx detected active. Configuring location block...${NC}"
     
     # Write Nginx configuration snippet
-    NGINX_CONF_FILE="/etc/nginx/conf.d/allmonlink.conf"
+    NGINX_CONF_FILE="/etc/nginx/conf.d/allmontouch.conf"
     
     # Check if we can include it. A cleaner way for Nginx is writing directly
     # next to the existing allmon3 config inside sites-available/default
     DEFAULT_SITE_FILE="/etc/nginx/sites-available/default"
     
     if [ -f "${DEFAULT_SITE_FILE}" ]; then
-        # Check if /allmonlink block is already configured
-        if grep -q "location /allmonlink/" "${DEFAULT_SITE_FILE}"; then
-            echo -e "${YELLOW}[*] Nginx /allmonlink/ block already exists. Skipping insertion.${NC}"
+        # Check if /allmontouch block is already configured
+        if grep -q "location /allmontouch/" "${DEFAULT_SITE_FILE}"; then
+            echo -e "${YELLOW}[*] Nginx /allmontouch/ block already exists. Skipping insertion.${NC}"
         else
-            # Insert the allmonlink block right before location /allmon3/
-            echo -e "${BLUE}[*] Injecting /allmonlink/ config into ${DEFAULT_SITE_FILE}...${NC}"
+            # Insert the allmontouch block right before location /allmon3/
+            echo -e "${BLUE}[*] Injecting /allmontouch/ config into ${DEFAULT_SITE_FILE}...${NC}"
             
             # Create location block payload
-            CONF_BLOCK="\n    location /allmonlink/ {\n        alias ${INSTALL_DIR}/;\n        autoindex off;\n    }\n"
+            CONF_BLOCK="\n    location /allmontouch/ {\n        alias ${INSTALL_DIR}/;\n        autoindex off;\n    }\n"
             
             # Insert using sed right before "location /allmon3/"
             sed -i "/location \/allmon3\//i\\$CONF_BLOCK" "${DEFAULT_SITE_FILE}"
@@ -133,7 +133,7 @@ if [ "$NGINX_RUNNING" = true ]; then
             systemctl restart nginx
         fi
     else
-        echo -e "${YELLOW}Warning: Nginx is active but ${DEFAULT_SITE_FILE} was not found. Please manual configure path /allmonlink/ mapping to ${INSTALL_DIR}.${NC}"
+        echo -e "${YELLOW}Warning: Nginx is active but ${DEFAULT_SITE_FILE} was not found. Please manual configure path /allmontouch/ mapping to ${INSTALL_DIR}.${NC}"
     fi
 fi
 
@@ -141,12 +141,12 @@ fi
 if [ "$APACHE_RUNNING" = true ]; then
     echo -e "${GREEN}[+] Apache2 detected active. Configuring alias...${NC}"
     
-    APACHE_CONF="/etc/apache2/conf-available/allmonlink.conf"
+    APACHE_CONF="/etc/apache2/conf-available/allmontouch.conf"
     
     # Write alias configuration file
     cat <<EOF > "${APACHE_CONF}"
-# AllmonLink Mobile PWA Interface
-Alias /allmonlink "${INSTALL_DIR}"
+# AllmonTouch Mobile PWA Interface
+Alias /allmontouch "${INSTALL_DIR}"
 <Directory "${INSTALL_DIR}">
     Options FollowSymLinks
     AllowOverride None
@@ -155,69 +155,69 @@ Alias /allmonlink "${INSTALL_DIR}"
 EOF
 
     echo -e "${BLUE}[*] Enabling Apache configuration...${NC}"
-    a2enconf allmonlink &>/dev/null
+    a2enconf allmontouch &>/dev/null
     
     echo -e "${BLUE}[*] Restarting Apache server...${NC}"
     systemctl restart apache2
 fi
 
 # 6. Create global command shortcuts for updates/uninstall
-echo -e "${BLUE}[*] Creating terminal shortcuts (allmonlink-update / allmonlink-uninstall)...${NC}"
+echo -e "${BLUE}[*] Creating terminal shortcuts (allmontouch-update / allmontouch-uninstall)...${NC}"
 
 # Update command shortcut
-cat <<'EOF' > /usr/local/bin/allmonlink-update
+cat <<'EOF' > /usr/local/bin/allmontouch-update
 #!/usr/bin/env bash
 if [ "$EUID" -ne 0 ]; then
-    echo "Error: Please run as root (sudo allmonlink-update)"
+    echo "Error: Please run as root (sudo allmontouch-update)"
     exit 1
 fi
-echo "Updating AllmonLink..."
+echo "Updating AllmonTouch..."
 curl -sSL https://raw.githubusercontent.com/ffrafat/AllmonLink/main/install.sh | bash
 EOF
-chmod +x /usr/local/bin/allmonlink-update
+chmod +x /usr/local/bin/allmontouch-update
 
 # Uninstall command shortcut
-cat <<'EOF' > /usr/local/bin/allmonlink-uninstall
+cat <<'EOF' > /usr/local/bin/allmontouch-uninstall
 #!/usr/bin/env bash
 if [ "$EUID" -ne 0 ]; then
-    echo "Error: Please run as root (sudo allmonlink-uninstall)"
+    echo "Error: Please run as root (sudo allmontouch-uninstall)"
     exit 1
 fi
 
-read -p "Are you sure you want to completely uninstall AllmonLink? [y/N] " confirm
+read -p "Are you sure you want to completely uninstall AllmonTouch? [y/N] " confirm
 if [[ ! $confirm =~ ^[Yy]$ ]]; then
     echo "Uninstall cancelled."
     exit 0
 fi
 
-echo "Uninstalling AllmonLink..."
+echo "Uninstalling AllmonTouch..."
 
 # Remove files
-rm -rf /usr/share/allmonlink
+rm -rf /usr/share/allmontouch
 
 # Remove Apache configuration
-if [ -f "/etc/apache2/conf-available/allmonlink.conf" ]; then
+if [ -f "/etc/apache2/conf-available/allmontouch.conf" ]; then
     echo "Removing Apache configuration..."
-    a2disconf allmonlink &>/dev/null || true
-    rm -f /etc/apache2/conf-available/allmonlink.conf
+    a2disconf allmontouch &>/dev/null || true
+    rm -f /etc/apache2/conf-available/allmontouch.conf
     systemctl restart apache2 2>/dev/null || true
 fi
 
 # Remove Nginx configuration
 DEFAULT_SITE_FILE="/etc/nginx/sites-available/default"
-if [ -f "${DEFAULT_SITE_FILE}" ] && grep -q "location /allmonlink/" "${DEFAULT_SITE_FILE}"; then
+if [ -f "${DEFAULT_SITE_FILE}" ] && grep -q "location /allmontouch/" "${DEFAULT_SITE_FILE}"; then
     echo "Removing Nginx configuration..."
-    sed -i '/location \/allmonlink\//,/}/d' "${DEFAULT_SITE_FILE}"
+    sed -i '/location \/allmontouch\//,/}/d' "${DEFAULT_SITE_FILE}"
     systemctl restart nginx 2>/dev/null || true
 fi
 
 # Remove shortcuts
-rm -f /usr/local/bin/allmonlink-update
-rm -f /usr/local/bin/allmonlink-uninstall
+rm -f /usr/local/bin/allmontouch-update
+rm -f /usr/local/bin/allmontouch-uninstall
 
-echo "AllmonLink has been successfully uninstalled."
+echo "AllmonTouch has been successfully uninstalled."
 EOF
-chmod +x /usr/local/bin/allmonlink-uninstall
+chmod +x /usr/local/bin/allmontouch-uninstall
 
 # Get IP address of the Pi
 IP_ADDR=$(hostname -I | awk '{print $1}')
@@ -226,10 +226,10 @@ if [ -z "$IP_ADDR" ]; then
 fi
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${GREEN}       AllmonLink Installation Completed!          ${NC}"
+echo -e "${GREEN}       AllmonTouch Installation Completed!         ${NC}"
 echo -e "${BLUE}===================================================${NC}"
-echo -e "You can access AllmonLink on your mobile browser at:"
-echo -e "👉 ${YELLOW}http://${IP_ADDR}/allmonlink/${NC}"
+echo -e "You can access AllmonTouch on your mobile browser at:"
+echo -e "👉 ${YELLOW}http://${IP_ADDR}/allmontouch/${NC}"
 echo -e ""
 echo -e "Inside Safari/Chrome, tap 'Add to Home Screen' to install as an App."
 echo -e "${BLUE}===================================================${NC}"

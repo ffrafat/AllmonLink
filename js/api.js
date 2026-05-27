@@ -1,9 +1,9 @@
 /**
- * AllmonLink API Client
+ * AllmonTouch API Client
  * Coordinates all HTTP communication with the Allmon3 daemon.
  */
 
-const AllmonLinkAPI = (() => {
+const AllmonTouchAPI = (() => {
   // Dynamically resolve base URL path relative to deployment
   const API_BASE = '/allmon3/master/';
 

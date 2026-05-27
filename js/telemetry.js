@@ -1,9 +1,9 @@
 /**
- * AllmonLink Telemetry Client
+ * AllmonTouch Telemetry Client
  * Manages WebSocket connections to daemon nodes for real-time status tracking.
  */
 
-const AllmonLinkTelemetry = (() => {
+const AllmonTouchTelemetry = (() => {
   const activeConnections = new Map();
 
   /**

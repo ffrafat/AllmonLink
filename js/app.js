@@ -1,5 +1,5 @@
 /**
- * AllmonLink UI Application Coordinator
+ * AllmonTouch UI Application Coordinator
  * Binds DOM events, handles state, and updates the layout.
  */
 
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="close-btn" id="update-close-btn">&times;</button>
         </div>
         <div class="modal-body" style="gap:12px;">
-          <p style="font-size:0.9rem;color:var(--text-secondary);">A new version of AllmonLink is available. To update your Pi, SSH into it and run this one-line command:</p>
+          <p style="font-size:0.9rem;color:var(--text-secondary);">A new version of AllmonTouch is available. To update your Pi, SSH into it and run this one-line command:</p>
           <div style="background-color:#040506;border:1px solid var(--border-subtle);border-radius:8px;padding:12px;font-family:monospace;font-size:0.8rem;color:#17c964;word-break:break-all;user-select:all;margin:8px 0;">
             curl -sSL https://raw.githubusercontent.com/ffrafat/AllmonLink/main/install.sh | sudo bash
           </div>
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = document.getElementById('sidebar-login-user').value.trim();
     const pass = document.getElementById('sidebar-login-pass').value;
 
-    AllmonLinkAPI.login(user, pass).then(res => {
+    AllmonTouchAPI.login(user, pass).then(res => {
       if (res.success) {
         state.isAuthenticated = true;
         renderSidebarAuth();
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const handleSidebarLogout = () => {
-    AllmonLinkAPI.logout().then(() => {
+    AllmonTouchAPI.logout().then(() => {
       state.isAuthenticated = false;
       renderSidebarAuth();
       showToast('Logged out successfully.', 'info');
@@ -260,8 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const selectActiveNode = (nodeId) => {
-    localStorage.setItem('allmonlink_last_node', nodeId);
-    AllmonLinkTelemetry.disconnectAll();
+    localStorage.setItem('allmontouch_last_node', nodeId);
+    AllmonTouchTelemetry.disconnectAll();
     el.dashboard.innerHTML = '';
     
     state.activeNodes = [nodeId];
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     el.dashboard.appendChild(loader);
 
-    AllmonLinkAPI.getNodeConfig(nodeId).then(res => {
+    AllmonTouchAPI.getNodeConfig(nodeId).then(res => {
       if (res.success && res.data && res.data.statport) {
         loader.remove();
         initTelemetryStream(nodeId, res.data.statport);
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const initTelemetryStream = (nodeId, wsPort) => {
-    AllmonLinkTelemetry.connect(
+    AllmonTouchTelemetry.connect(
       nodeId,
       wsPort,
       (id, data, ptt) => {
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const executeDetailsCliCommand = (hostNodeId, cmdStr) => {
     el.detailsConsoleOutput.innerHTML = '<div class="spinner" style="margin: 32px auto;"></div>';
 
-    AllmonLinkAPI.executeCommand(hostNodeId, cmdStr).then(res => {
+    AllmonTouchAPI.executeCommand(hostNodeId, cmdStr).then(res => {
       if (res.success) {
         let out = res.data;
         try { out = atob(res.data); } catch(e) {}
@@ -536,8 +536,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cmdStr11 = `rpt cmd ${hostNodeId} ilink 11 ${targetNodeId}`;
     
     Promise.all([
-      AllmonLinkAPI.executeCommand(hostNodeId, cmdStr1),
-      AllmonLinkAPI.executeCommand(hostNodeId, cmdStr11)
+      AllmonTouchAPI.executeCommand(hostNodeId, cmdStr1),
+      AllmonTouchAPI.executeCommand(hostNodeId, cmdStr11)
     ]).then(([res1, res11]) => {
       if (res1.success || res11.success) {
         showToast(`Node ${targetNodeId} disconnected successfully.`, 'success');
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`Connecting Node ${targetNode}...`, 'info');
     toggleConnectSheet(false);
     
-    AllmonLinkAPI.executeCommand(hostNodeId, cmdStr).then(res => {
+    AllmonTouchAPI.executeCommand(hostNodeId, cmdStr).then(res => {
       if (res.success) {
         showToast(`Node ${targetNode} connection request sent.`, 'success');
       } else {
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleConnectSheet(false);
         const cmdStr = `rpt cmd ${hostNodeId} ilink 3 ${b.node}`;
         
-        AllmonLinkAPI.executeCommand(hostNodeId, cmdStr).then(res => {
+        AllmonTouchAPI.executeCommand(hostNodeId, cmdStr).then(res => {
           if (res.success) {
             showToast(`Favorite Node ${b.node} connection sent.`, 'success');
           } else {
@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   el.themeToggleBtn.addEventListener('click', () => {
     const isLight = document.body.classList.toggle('theme-light');
-    localStorage.setItem('allmonlink_theme', isLight ? 'light' : 'dark');
+    localStorage.setItem('allmontouch_theme', isLight ? 'light' : 'dark');
     
     if (isLight) {
       el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-moon"></use></svg>';
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const initApp = () => {
     // 0. Initialize theme setting
-    const currentTheme = localStorage.getItem('allmonlink_theme') || 'dark';
+    const currentTheme = localStorage.getItem('allmontouch_theme') || 'dark';
     if (currentTheme === 'light') {
       document.body.classList.add('theme-light');
       el.themeToggleBtn.innerHTML = '<svg class="icon"><use xlink:href="#icon-moon"></use></svg>';
@@ -690,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkForUpdates();
 
     // 1. Check current login authentication state
-    AllmonLinkAPI.checkAuth().then(res => {
+    AllmonTouchAPI.checkAuth().then(res => {
       if (res.success && res.data === 'Logged In') {
         state.isAuthenticated = true;
       } else {
@@ -700,19 +700,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 2. Fetch overrides
-    AllmonLinkAPI.getOverrides().then(res => {
+    AllmonTouchAPI.getOverrides().then(res => {
       if (res.success && res.data) {
         state.overrides = res.data;
       }
     });
 
     // 3. Fetch nodes list to initialize navigation and dashboard
-    AllmonLinkAPI.getNodeList().then(res => {
+    AllmonTouchAPI.getNodeList().then(res => {
       if (res.success && res.data && res.data.length > 0) {
         state.nodes = res.data;
         renderSidebarNavigation();
         
-        const lastNode = Number(localStorage.getItem('allmonlink_last_node'));
+        const lastNode = Number(localStorage.getItem('allmontouch_last_node'));
         const defaultNode = state.nodes.includes(lastNode) ? lastNode : state.nodes[0];
         
         selectActiveNode(defaultNode);
