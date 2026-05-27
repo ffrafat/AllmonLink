@@ -88,11 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
     quickConnectForm: document.getElementById('quick-connect-form'),
     qcTargetNode: document.getElementById('qc-target-node'),
     qcLinkPerm: document.getElementById('qc-link-perm'),
-    favoritesBookmarksGrid: document.getElementById('favorites-bookmarks-grid'),
+    recentNodesGrid: document.getElementById('recent-nodes-grid'),
     
     toastContainer: document.getElementById('toast-container'),
     
-    headerNodeSelector: document.getElementById('header-node-selector'),
     cliOutputModal: document.getElementById('cli-output-modal'),
     cliModalText: document.getElementById('cli-modal-text'),
     cliModalClose: document.getElementById('cli-modal-close-btn'),
@@ -279,28 +278,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- VIEW RENDERERS ---
 
-  const renderHeaderNodeSelector = () => {
-    if (!el.headerNodeSelector) return;
-    el.headerNodeSelector.innerHTML = '';
+  const renderSidebarNavigation = () => {
+    if (!el.navContainer) return;
+    el.navContainer.innerHTML = '';
     
     if (state.nodes.length === 0) {
-      const opt = document.createElement('option');
-      opt.text = 'No nodes';
-      el.headerNodeSelector.appendChild(opt);
+      el.navContainer.innerHTML = '<div class="nav-loading">No nodes found</div>';
       return;
     }
     
     state.nodes.forEach(nodeId => {
       const customName = state.overrides[nodeId] ? ` (${state.overrides[nodeId]})` : '';
-      const opt = document.createElement('option');
-      opt.value = nodeId;
-      opt.text = `Node ${nodeId}${customName}`;
-      
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'nav-item';
       if (state.activeNodes.includes(nodeId)) {
-        opt.selected = true;
+        item.classList.add('active');
       }
       
-      el.headerNodeSelector.appendChild(opt);
+      item.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg class="icon"><use xlink:href="#icon-node"></use></svg>
+          <span>Node ${nodeId}${customName}</span>
+        </div>
+        <svg class="icon"><use xlink:href="#icon-chevron-right"></use></svg>
+      `;
+      
+      item.addEventListener('click', () => {
+        selectActiveNode(nodeId);
+        toggleSidebar(false);
+      });
+      
+      el.navContainer.appendChild(item);
     });
   };
 
@@ -310,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.dashboard.innerHTML = '';
     
     state.activeNodes = [nodeId];
-    renderHeaderNodeSelector();
+    renderSidebarNavigation();
     
     // Update sidebar top node info block
     const customDesc = state.overrides[nodeId] || 'AllStarLink Node Monitor';
@@ -497,8 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
       el.dashboard.appendChild(emptyCard);
     }
     
-    // Refresh FAB favorites just in case
-    renderFavoritesBookmarks(nodeId);
+    // Refresh recent nodes list in connect sheet
+    renderRecentNodes(nodeId);
   };
 
   const renderErrorNodeCard = (nodeId, errorMessage) => {
@@ -662,7 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const hostNodeId = state.activeNodes[0];
     const targetNode = el.qcTargetNode.value.trim();
-    const isPerm = el.qcLinkPerm.value === 'yes';
+    const isPerm = el.qcLinkPerm.checked;
     
     if (!hostNodeId || !targetNode) return;
     
@@ -676,46 +685,78 @@ document.addEventListener('DOMContentLoaded', () => {
     AllmonTouchAPI.executeCommand(hostNodeId, cmdStr).then(res => {
       if (res.success) {
         showToast(`Node ${targetNode} connection request sent.`, 'success');
+        addRecentNode(targetNode);
       } else {
         showToast(res.message || 'Connection request failed.', 'error');
       }
     });
   };
 
-  const renderFavoritesBookmarks = (hostNodeId) => {
-    el.favoritesBookmarksGrid.innerHTML = '';
-    
-    // Default favorites bookmarked nodes list
-    const bookmarks = [
-      { node: '1999', label: 'Test Node' },
-      { node: '500', label: 'Hub 500' },
-      { node: '40000', label: 'EchoLink' }
-    ];
+  const addRecentNode = (nodeId) => {
+    let recents = getRecentNodes();
+    recents = recents.filter(id => id !== nodeId);
+    recents.unshift(nodeId);
+    if (recents.length > 6) {
+      recents = recents.slice(0, 6);
+    }
+    localStorage.setItem('allmontouch_recent_nodes', JSON.stringify(recents));
+    if (state.activeNodes.length > 0) {
+      renderRecentNodes(state.activeNodes[0]);
+    }
+  };
 
-    bookmarks.forEach(b => {
+  const getRecentNodes = () => {
+    try {
+      const stored = localStorage.getItem('allmontouch_recent_nodes');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const clearRecentNodes = () => {
+    localStorage.removeItem('allmontouch_recent_nodes');
+    if (state.activeNodes.length > 0) {
+      renderRecentNodes(state.activeNodes[0]);
+    }
+  };
+
+  const renderRecentNodes = (hostNodeId) => {
+    if (!el.recentNodesGrid) return;
+    el.recentNodesGrid.innerHTML = '';
+    
+    const recents = getRecentNodes();
+    if (recents.length === 0) {
+      el.recentNodesGrid.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); font-style:italic; padding:8px 0;">No recent connections</div>';
+      return;
+    }
+
+    recents.forEach(nodeId => {
       const badge = document.createElement('div');
       badge.className = 'fav-badge-btn';
+      const customName = state.overrides[nodeId] || `Node ${nodeId}`;
       badge.innerHTML = `
-        <svg class="icon"><use xlink:href="#icon-star"></use></svg>
-        <span class="fav-node-num">${b.node}</span>
-        <span class="fav-node-label">${b.label}</span>
+        <svg class="icon"><use xlink:href="#icon-node"></use></svg>
+        <span class="fav-node-num">${nodeId}</span>
+        <span class="fav-node-label">${customName}</span>
       `;
       
       badge.addEventListener('click', () => {
-        showToast(`Connecting favorite Node ${b.node}...`, 'info');
+        showToast(`Connecting recent Node ${nodeId}...`, 'info');
         toggleConnectSheet(false);
-        const cmdStr = `rpt cmd ${hostNodeId} ilink 3 ${b.node}`;
+        const cmdStr = `rpt cmd ${hostNodeId} ilink 3 ${nodeId}`;
         
         AllmonTouchAPI.executeCommand(hostNodeId, cmdStr).then(res => {
           if (res.success) {
-            showToast(`Favorite Node ${b.node} connection sent.`, 'success');
+            showToast(`Recent Node ${nodeId} connection sent.`, 'success');
+            addRecentNode(nodeId);
           } else {
             showToast(res.message || 'Connection failed.', 'error');
           }
         });
       });
       
-      el.favoritesBookmarksGrid.appendChild(badge);
+      el.recentNodesGrid.appendChild(badge);
     });
   };
 
@@ -766,13 +807,9 @@ document.addEventListener('DOMContentLoaded', () => {
   el.connectSheetCloseBtn.addEventListener('click', () => toggleConnectSheet(false));
   el.quickConnectForm.addEventListener('submit', handleQuickConnectSubmit);
 
-  if (el.headerNodeSelector) {
-    el.headerNodeSelector.addEventListener('change', (e) => {
-      const selectedNodeId = Number(e.target.value);
-      if (selectedNodeId && !state.activeNodes.includes(selectedNodeId)) {
-        selectActiveNode(selectedNodeId);
-      }
-    });
+  const clearBtn = document.getElementById('clear-recent-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', clearRecentNodes);
   }
 
   if (el.cliModalClose) {
@@ -825,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
     AllmonTouchAPI.getNodeList().then(res => {
       if (res.success && res.data && res.data.length > 0) {
         state.nodes = res.data;
-        renderHeaderNodeSelector();
+        renderSidebarNavigation();
         
         const lastNode = Number(localStorage.getItem('allmontouch_last_node'));
         const defaultNode = state.nodes.includes(lastNode) ? lastNode : state.nodes[0];

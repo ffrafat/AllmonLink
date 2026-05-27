@@ -128,12 +128,7 @@
             </div>
         </div>
         
-        <!-- Header Node Selector Dropdown -->
-        <div class="node-select-wrapper">
-            <select id="header-node-selector" class="header-select" aria-label="Select Monitored Node">
-                <!-- Configured Node Options populated dynamically -->
-            </select>
-        </div>
+
 
         <div style="display: flex; gap: 8px;">
             <button id="theme-toggle-btn" class="header-action-btn" aria-label="Toggle Dark/Light Theme">
@@ -164,14 +159,26 @@
         </div>
         
         <div class="sidebar-content">
+            <!-- Monitored Nodes Section -->
+            <div class="sidebar-section" style="margin-bottom: 24px;">
+                <div class="sidebar-section-title" style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px; padding: 0 4px;">
+                    <svg class="icon" style="width: 16px; height: 16px; color: var(--primary);"><use xlink:href="#icon-node"></use></svg>
+                    <span class="section-label" style="margin: 0; font-size: 0.72rem; letter-spacing: 0.5px;">Monitored Nodes</span>
+                </div>
+                <div id="node-navigation-list" class="nav-list">
+                    <!-- Will render node items dynamically -->
+                </div>
+            </div>
+
             <!-- Auth Login Form or User Info & Logout Button -->
             <div id="sidebar-auth-section" class="sidebar-auth-wrapper">
                 <!-- Will render forms or profile actions dynamically -->
             </div>
             
-            <div class="sidebar-footer" style="margin-top: auto;">
-                <p class="app-version">AllmonTouch v1.0.0</p>
-                <p class="copyright">&copy; AllStarLink</p>
+            <div class="sidebar-footer" style="margin-top: auto; padding: 12px 18px; opacity: 0.6; font-size: 0.7rem; line-height: 1.4;">
+                <p class="app-version" style="font-size: 0.7rem; margin-bottom: 2px;">AllmonTouch v1.0.0</p>
+                <p class="copyright" style="font-size: 0.7rem; margin-bottom: 2px;">&copy; AllStarLink</p>
+                <p class="developer" style="font-size: 0.65rem;">Developed by <a href="https://rafat.cc" target="_blank" style="color: var(--primary); text-decoration: none;">S21NET</a></p>
             </div>
         </div>
     </aside>
@@ -190,12 +197,10 @@
     <!-- Slide-in Details Page View (iOS Navigation Style) -->
     <div id="node-details-view" class="details-view-container">
         <header class="details-header">
-            <button id="details-back-btn" class="details-back-btn">
+            <button id="details-back-btn" class="details-back-btn" aria-label="Go Back">
                 <svg class="icon"><use xlink:href="#icon-arrow-left"></use></svg>
-                <span>Back</span>
             </button>
             <div class="details-header-title" id="details-view-title">Node Details</div>
-            <div style="width: 40px;"></div> <!-- Spacer to center title -->
         </header>
         
         <div class="details-body">
@@ -287,12 +292,11 @@
                         <label for="qc-target-node">Target Node #</label>
                         <input type="number" id="qc-target-node" placeholder="e.g. 1999" pattern="[0-9]*" inputmode="numeric" required>
                       </div>
-                      <div class="form-subgroup flex-1">
-                          <label for="qc-link-perm">Permanent</label>
-                          <select id="qc-link-perm">
-                              <option value="no">No</option>
-                              <option value="yes">Yes</option>
-                          </select>
+                      <div class="form-subgroup flex-1" style="align-items: flex-start; justify-content: flex-end; padding-bottom: 8px;">
+                          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; text-transform: none; font-size: 0.8rem; font-weight: 600;">
+                              <input type="checkbox" id="qc-link-perm" style="width: 16px; height: 16px; border-radius: 4px; accent-color: var(--primary);">
+                              <span>Permanent</span>
+                          </label>
                       </div>
                   </div>
                   <button type="submit" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -303,12 +307,15 @@
 
               <hr class="form-divider">
 
-              <div class="section-subtitle" style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
-                  <svg class="icon-inline" style="color: var(--warning);"><use xlink:href="#icon-star"></use></svg>
-                  <span>Favorite Node Bookmarks</span>
+              <div class="section-subtitle" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                      <svg class="icon-inline" style="color: var(--warning);"><use xlink:href="#icon-clock"></use></svg>
+                      <span>Recent Connected Nodes</span>
+                  </div>
+                  <button type="button" id="clear-recent-btn" class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.7rem; height: 22px; border-radius: 4px; border: 1px solid var(--border-subtle);">Clear</button>
               </div>
-              <div class="favorites-grid" id="favorites-bookmarks-grid">
-                  <!-- Bookmarked shortcuts populate here -->
+              <div class="favorites-grid" id="recent-nodes-grid">
+                  <!-- Recent shortcuts populate here -->
               </div>
           </div>
       </div>
