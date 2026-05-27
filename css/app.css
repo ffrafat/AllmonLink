@@ -1,87 +1,168 @@
 /*
- * AllmonTouch - Premium Hybrid Geist & iOS Glassmorphic UI Framework
- * Focus: AMOLED dark-base, translucent glass structures, high-contrast borders, tactile micro-spring animations.
+ * AllmonTouch - Material Design 3 UI Styling Engine
+ * Focus: Material 3 (M3) color tokens, rounded components, outlined inputs, and tactile ink ripples.
  */
 
 :root {
-  /* Color Tokens - AMOLED Dark Base */
-  --bg-app: #000000;
-  --surface-card: #0a0a0c;
-  --surface-header: rgba(10, 10, 12, 0.7);
-  --surface-elevated: #121215;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(0, 114, 245, 0.4);
+  /* Material 3 Dark Color Tokens */
+  --md-sys-color-primary: #a8c7fa; /* M3 Light Blue */
+  --md-sys-color-on-primary: #062e6f;
+  --md-sys-color-primary-container: #004494;
+  --md-sys-color-on-primary-container: #d2e4ff;
   
-  --text-primary: #f4f4f7;
-  --text-secondary: #889096;
-  --text-muted: #52525b;
-  
-  /* Vibrant Accents */
-  --primary: #0072f5;
-  --primary-glow: rgba(0, 114, 245, 0.12);
-  --accent-gradient: linear-gradient(135deg, #0072f5 0%, #00d2ff 100%);
-  
-  --success: #10b981;       /* Idle / Active Connection */
-  --success-glow: rgba(16, 185, 129, 0.15);
-  
-  --danger: #ef4444;        /* Transmitting (PTT) */
-  --danger-glow: rgba(239, 68, 68, 0.18);
-  
-  --warning: #f59e0b;       /* Connecting */
-  --warning-glow: rgba(245, 158, 11, 0.15);
-  
-  --info: #06b6d4;          /* Network/Remote */
-  --info-glow: rgba(6, 182, 212, 0.15);
+  --md-sys-color-secondary: #c2c7cf;
+  --md-sys-color-on-secondary: #2c3137;
+  --md-sys-color-secondary-container: #44474e;
+  --md-sys-color-on-secondary-container: #e2e2e9;
 
-  /* Element Backgrounds */
-  --surface-subtle: rgba(255, 255, 255, 0.02);
-  --surface-subtle-hover: rgba(255, 255, 255, 0.05);
-  --input-bg: rgba(255, 255, 255, 0.03);
-  --input-bg-focus: rgba(255, 255, 255, 0.06);
+  --md-sys-color-surface: #121318; /* M3 dark base surface */
+  --md-sys-color-surface-dim: #121318;
+  --md-sys-color-surface-bright: #38393e;
+  --md-sys-color-surface-container-lowest: #0c0d12;
+  --md-sys-color-surface-container-low: #1a1b20;
+  --md-sys-color-surface-container: #1e1f25; /* Cards, drawer background */
+  --md-sys-color-surface-container-high: #282a30;
+  --md-sys-color-surface-container-highest: #33353b;
+  
+  --md-sys-color-on-surface: #e2e2e9;
+  --md-sys-color-on-surface-variant: #c2c7cf;
+  --md-sys-color-outline: #8c9199;
+  --md-sys-color-outline-variant: #44474e;
 
-  /* Glassmorphism */
-  --glass-effect: backdrop-filter: blur(20px) saturate(180%);
-  --glass-effect-safari: -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* State colors aligned with Material Design 3 */
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+  
+  --md-sys-color-success: #81d4fa; /* M3 Light teal/cyan for idle */
+  --md-sys-color-success-container: #004d61;
+  --md-sys-color-on-success-container: #bfe9ff;
+
+  --md-sys-color-warning: #ffd965; /* M3 yellow for connecting */
+  --md-sys-color-warning-container: #564000;
+  --md-sys-color-on-warning-container: #ffe08d;
+
+  --md-sys-color-info: #b3c5ff; /* M3 blue-grey for network */
+  --md-sys-color-info-container: #1b2e66;
+  --md-sys-color-on-info-container: #dce1ff;
+
+  /* Existing Variable Aliases Mapped to M3 Dark */
+  --bg-app: var(--md-sys-color-surface-container-lowest);
+  --surface-card: var(--md-sys-color-surface-container-low);
+  --surface-header: var(--md-sys-color-surface-container);
+  --surface-elevated: var(--md-sys-color-surface-container-high);
+  --border-subtle: var(--md-sys-color-outline-variant);
+  --border-focus: var(--md-sys-color-primary);
+  
+  --text-primary: var(--md-sys-color-on-surface);
+  --text-secondary: var(--md-sys-color-on-surface-variant);
+  --text-muted: var(--md-sys-color-outline);
+  
+  --primary: var(--md-sys-color-primary);
+  --primary-container: var(--md-sys-color-primary-container);
+  --on-primary-container: var(--md-sys-color-on-primary-container);
+  --secondary-container: var(--md-sys-color-secondary-container);
+  --on-secondary-container: var(--md-sys-color-on-secondary-container);
+  
+  --success: #66bb6a; /* Green */
+  --danger: #ef5350;  /* Red */
+  --warning: #ffca28; /* Yellow */
+  --info: #29b6f6;    /* Light Blue */
+
+  --surface-subtle: rgba(255, 255, 255, 0.04);
+  --surface-subtle-hover: rgba(255, 255, 255, 0.08);
+  --input-bg: var(--md-sys-color-surface-container-low);
+  --input-bg-focus: var(--md-sys-color-surface-container-high);
 
   /* Layout and Transitions */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --header-height: calc(56px + var(--safe-top));
+  --header-height: calc(64px + var(--safe-top)); /* standard M3 header height is 64px */
   --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.6);
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Material 3 Shadow Levels */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15); /* Elevation 1 */
+  --shadow-md: 0 4px 8px 3px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15); /* Elevation 3 */
+  --transition-smooth: all 0.2s cubic-bezier(0.2, 0, 0, 1); /* standard M3 easing */
   --radius-card: 16px;
-  --radius-button: 10px;
+  --radius-button: 100px; /* Pill buttons */
 }
 
 /* Light Theme Variables */
 body.theme-light {
-  --bg-app: #f4f6f8;
-  --surface-card: #ffffff;
-  --surface-header: rgba(244, 246, 248, 0.75);
-  --surface-elevated: #fcfdfe;
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-focus: rgba(0, 114, 245, 0.3);
+  /* Material 3 Light Color Tokens */
+  --md-sys-color-primary: #005FAF; /* M3 Blue */
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #d2e4ff;
+  --md-sys-color-on-primary-container: #001d37;
   
-  --text-primary: #09090b;
-  --text-secondary: #71717a;
-  --text-muted: #a1a1aa;
+  --md-sys-color-secondary: #535f70;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #d6e3f7;
+  --md-sys-color-on-secondary-container: #101c2b;
+
+  --md-sys-color-surface: #f8f9ff;
+  --md-sys-color-surface-dim: #d9dae0;
+  --md-sys-color-surface-bright: #f8f9ff;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f3f3f9;
+  --md-sys-color-surface-container: #ededf4;
+  --md-sys-color-surface-container-high: #e7e7ee;
+  --md-sys-color-surface-container-highest: #e1e2e8;
   
-  --primary-glow: rgba(0, 114, 245, 0.06);
-  --success-glow: rgba(16, 185, 129, 0.08);
-  --danger-glow: rgba(239, 68, 68, 0.08);
-  --warning-glow: rgba(245, 158, 11, 0.08);
-  --info-glow: rgba(6, 182, 212, 0.08);
+  --md-sys-color-on-surface: #1a1b20;
+  --md-sys-color-on-surface-variant: #43474e;
+  --md-sys-color-outline: #73777f;
+  --md-sys-color-outline-variant: #c3c7cf;
+
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
   
-  --surface-subtle: rgba(0, 0, 0, 0.015);
-  --surface-subtle-hover: rgba(0, 0, 0, 0.035);
-  --input-bg: rgba(0, 0, 0, 0.025);
-  --input-bg-focus: rgba(0, 0, 0, 0.045);
+  --md-sys-color-success: #006877;
+  --md-sys-color-success-container: #a2efff;
+  --md-sys-color-on-success-container: #001f25;
+
+  --md-sys-color-warning: #745b00;
+  --md-sys-color-warning-container: #ffe08d;
+  --md-sys-color-on-warning-container: #241a00;
+
+  --md-sys-color-info: #2c5ba8;
+  --md-sys-color-info-container: #dbe1ff;
+  --md-sys-color-on-info-container: #00174a;
+
+  /* Variable Aliases Mapped to M3 Light */
+  --bg-app: var(--md-sys-color-surface-container-low);
+  --surface-card: var(--md-sys-color-surface-container-lowest);
+  --surface-header: var(--md-sys-color-surface-container);
+  --surface-elevated: var(--md-sys-color-surface-container-high);
+  --border-subtle: var(--md-sys-color-outline-variant);
+  --border-focus: var(--md-sys-color-primary);
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --text-primary: var(--md-sys-color-on-surface);
+  --text-secondary: var(--md-sys-color-on-surface-variant);
+  --text-muted: var(--md-sys-color-outline);
+  
+  --primary: var(--md-sys-color-primary);
+  --primary-container: var(--md-sys-color-primary-container);
+  --on-primary-container: var(--md-sys-color-on-primary-container);
+  --secondary-container: var(--md-sys-color-secondary-container);
+  --on-secondary-container: var(--md-sys-color-on-secondary-container);
+  
+  --success: #2e7d32;
+  --danger: #d32f2f;
+  --warning: #fbc02d;
+  --info: #1976d2;
+
+  --surface-subtle: rgba(0, 0, 0, 0.04);
+  --surface-subtle-hover: rgba(0, 0, 0, 0.08);
+  --input-bg: var(--md-sys-color-surface-container-low);
+  --input-bg-focus: var(--md-sys-color-surface-container-high);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px 1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px 3px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* Base resets & containment */
@@ -123,7 +204,7 @@ button:active,
   transform: scale(0.96) !important;
 }
 
-/* Sticky Frosted Header */
+/* Sticky Header - M3 Surface Container */
 .app-header {
   position: fixed;
   top: 0;
@@ -131,9 +212,7 @@ button:active,
   width: 100%;
   height: var(--header-height);
   padding-top: var(--safe-top);
-  background-color: var(--surface-header);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background-color: var(--md-sys-color-surface-container);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -141,6 +220,7 @@ button:active,
   padding-left: 16px;
   padding-right: 16px;
   z-index: 1000;
+  box-shadow: var(--shadow-sm);
   transition: var(--transition-smooth);
 }
 
@@ -253,13 +333,12 @@ button:active,
   left: 0;
   width: 280px;
   height: 100%;
-  background-color: var(--surface-header);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-right: 1px solid var(--border-subtle);
+  background-color: var(--md-sys-color-surface-container);
+  border-radius: 0 28px 28px 0;
+  box-shadow: var(--shadow-md);
   z-index: 1200;
   transform: translateX(-100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
   display: flex;
   flex-direction: column;
   padding-top: var(--safe-top);
@@ -326,21 +405,23 @@ button:active,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  background-color: var(--surface-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-button);
+  padding: 12px 18px;
+  background-color: transparent;
+  border: none;
+  border-radius: 100px;
   text-decoration: none;
   color: var(--text-primary);
   font-weight: 500;
   font-size: 0.95rem;
+  margin: 2px 0;
+  position: relative;
+  overflow: hidden;
   transition: var(--transition-smooth);
 }
 
 .nav-item.active {
-  background-color: var(--primary-glow);
-  border-color: var(--primary);
-  color: var(--text-primary);
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
 }
 
 .nav-item .icon {
@@ -673,23 +754,20 @@ button:active,
   color: #ffffff;
 }
 
-/* Frosted Bottom Sheets */
+/* Material 3 Bottom Sheets */
 .bottom-sheet {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   max-height: 85%;
-  background-color: var(--surface-header);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  border-top: 1px solid var(--border-subtle);
+  background-color: var(--md-sys-color-surface-container);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
   box-shadow: var(--shadow-md);
   z-index: 1200;
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
   display: flex;
   flex-direction: column;
   padding-bottom: var(--safe-bottom);
@@ -700,10 +778,10 @@ button:active,
 }
 
 .bottom-sheet-handle {
-  width: 36px;
+  width: 32px;
   height: 4px;
-  background-color: var(--border-subtle);
-  border-radius: 2px;
+  background-color: var(--md-sys-color-outline-variant);
+  border-radius: 100px;
   margin: 10px auto 4px auto;
 }
 
@@ -766,20 +844,21 @@ input[type="number"],
 input[type="password"],
 select {
   width: 100%;
-  padding: 10px 14px;
-  background-color: var(--input-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  padding: 12px 16px;
+  background-color: transparent;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 4px;
   color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   outline: none;
   transition: var(--transition-smooth);
+  box-sizing: border-box;
 }
 
 input:focus, select:focus {
-  border-color: var(--primary);
-  background-color: var(--input-bg-focus);
+  border-color: var(--md-sys-color-primary);
+  box-shadow: 0 0 0 1px var(--md-sys-color-primary);
 }
 
 /* Flat design Segmented Toggle */
@@ -818,13 +897,15 @@ input:focus, select:focus {
 
 /* Styled Action Buttons */
 .btn {
-  padding: 10px 18px;
+  padding: 12px 24px;
   border-radius: var(--radius-button);
   font-family: var(--font-family);
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 500;
   border: none;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
   transition: var(--transition-smooth);
   display: flex;
   align-items: center;
@@ -836,18 +917,23 @@ input:focus, select:focus {
 }
 
 .btn-primary {
-  background: var(--accent-gradient);
-  color: #ffffff;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
 }
 
 .btn-secondary {
-  background-color: var(--surface-subtle-hover);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
 .btn-secondary:hover {
-  background-color: var(--border-subtle);
+  filter: brightness(1.08);
 }
 
 .form-divider {
@@ -986,22 +1072,22 @@ input:focus, select:focus {
 }
 
 .alert {
-  padding: 10px 12px;
+  padding: 12px 16px;
   border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .alert-danger {
-  background-color: rgba(239, 68, 68, 0.08);
-  color: var(--danger);
-  border: 1px solid rgba(239, 68, 68, 0.15);
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border: none;
 }
 
-/* Glassmorphic floating toast notification alerts */
+/* Material 3 Snackbar Toasts */
 .toast-container {
   position: fixed;
-  bottom: calc(20px + var(--safe-bottom));
+  bottom: calc(24px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 3000;
@@ -1010,31 +1096,29 @@ input:focus, select:focus {
   gap: 8px;
   pointer-events: none;
   width: calc(100% - 32px);
-  max-width: 330px;
+  max-width: 340px;
 }
 
 .toast {
-  background-color: rgba(18, 18, 22, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: var(--md-sys-color-surface-container-highest);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 20px;
+  border-radius: 100px;
   box-shadow: var(--shadow-md);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
   opacity: 0;
-  transform: translateY(8px);
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(12px);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   pointer-events: auto;
 }
 
 body.theme-light .toast {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: var(--md-sys-color-surface-container-highest);
 }
 
 .toast.show {
@@ -1043,15 +1127,15 @@ body.theme-light .toast {
 }
 
 .toast-success {
-  border-left: 3px solid var(--success);
+  border-left: none;
 }
 
 .toast-error {
-  border-left: 3px solid var(--danger);
+  border-left: none;
 }
 
 .toast-info {
-  border-left: 3px solid var(--primary);
+  border-left: none;
 }
 
 /* Sidebar Node Info */
@@ -1352,28 +1436,31 @@ body.theme-light .toast {
   color: #ffffff;
 }
 
-/* Floating Action Button (FAB) */
+/* Floating Action Button (FAB) - M3 Squircle */
 .fab-btn {
   position: fixed;
   bottom: calc(24px + var(--safe-bottom));
   right: 24px;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
-  color: #ffffff;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
   border: none;
-  box-shadow: 0 4px 16px rgba(0, 114, 245, 0.4);
+  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 1300;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth), transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .fab-btn:hover {
-  box-shadow: 0 6px 20px rgba(0, 114, 245, 0.6);
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.08);
 }
 
 .fab-btn .icon {
@@ -1394,20 +1481,22 @@ body.theme-light .toast {
 }
 
 .fav-badge-btn {
-  background-color: var(--surface-subtle);
+  background-color: var(--md-sys-color-surface-container-high);
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  padding: 10px 8px;
+  border-radius: 16px;
+  padding: 12px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
   transition: var(--transition-smooth);
 }
 
 .fav-badge-btn:hover {
-  background-color: var(--surface-subtle-hover);
+  background-color: var(--md-sys-color-surface-container-highest);
   border-color: var(--primary);
 }
 
@@ -1431,5 +1520,26 @@ body.theme-light .toast {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Ink Ripple Animations */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-effect 0.45s cubic-bezier(0.2, 0, 0, 1);
+  background-color: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+
+body.theme-light .ripple {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes ripple-effect {
+  to {
+    transform: scale(4.0);
+    opacity: 0;
+  }
 }
 

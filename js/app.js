@@ -23,6 +23,37 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => console.error('[PWA] Service Worker registration failed:', err));
   }
 
+  // --- MATERIAL INK RIPPLE DELEGATOR ---
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('.btn, button, .nav-item, .fav-badge-btn, .btn-icon-circle, .btn-unlink');
+    if (!target) return;
+
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    
+    const rect = target.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    
+    ripple.style.width = ripple.style.height = `${size}px`;
+    
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    
+    const existing = target.querySelector('.ripple');
+    if (existing) {
+      existing.remove();
+    }
+    
+    target.appendChild(ripple);
+    
+    setTimeout(() => {
+      ripple.remove();
+    }, 500);
+  });
+
   // --- UI SELECTORS ---
   const el = {
     menuBtn: document.getElementById('menu-btn'),
